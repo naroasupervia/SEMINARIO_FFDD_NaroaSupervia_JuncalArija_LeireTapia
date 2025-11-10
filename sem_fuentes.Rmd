@@ -9,22 +9,55 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+#INTRODUCCIÓN
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+
+#OBJETIVOS 
+
+
+
+
+#METODOLOGÍA Y RESULTADOS 
+Los datos que vamos a usar an sido encontrados ....
+Para poder utilizar estos conjuntos de datos es necesario importalos, para ello utilizaremos las siguientes librerias:
+
+```{r , eval = TRUE,message=FALSE, warning=FALSE}
+# Datos con formato .csv:
+library(readr)
+
+#Datos con formato .json:
+library(tidyverse)
+library(rjson)
+library(tidyjson)
+
+#Visualizacion resultados:
+library(DT)
+library(ggplot2)
+library(gifski)
+library(gganimate)
+library(plotly)
+library(dplyr)
+library(mapSpain)
+
 ```
 
-## Including Plots
+Una vez cargadas las librerias importamos los datos
 
-You can also embed plots, for example:
+## IMPORTACIÓN DE ARCHIVOS
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+### IMPORTACIÓN DATOS CSV
+
+### PREPARACIÓN DATOS CSV
+
+
+
+# CONCLUSIONES
+
+
+
+#REFERENCIAS 
