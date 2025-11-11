@@ -9,17 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#INTRODUCCIÓN
+#**INTRODUCCIÓN**
+contextualiza la idea del seminario, entrega una idea general de la temática, de lo que se sabe y sobre todo de lo que no se sabe y queréis abordar en vuestro trabajo.
 
 
 
-
-#OBJETIVOS 
-
-
+#**OBJETIVO GENERAL** 
+en una frase un objetivo claro y general que muestre muy claramente la relación entre variables que váis a buscar/relacionar.
 
 
-#METODOLOGÍA Y RESULTADOS 
+
+#**PREPARACIÓN DE DATOS**
 Los datos que vamos a usar an sido encontrados ....
 Para poder utilizar estos conjuntos de datos es necesario importalos, para ello utilizaremos las siguientes librerias:
 
@@ -43,16 +43,75 @@ library(mapSpain)
 
 ```
 
+
+
+## **IMPORTACIÓN DE ARCHIVOS**
 Una vez cargadas las librerias importamos los datos
 
-## IMPORTACIÓN DE ARCHIVOS
+
+### **IMPORTACIÓN DATOS CSV**
+En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español :
+
+```{r , eval = TRUE,message=FALSE}
+
+# Para conocer el tipo de codificación: 
+encoding <- guess_encoding("Input/DATA/provincias_sexo.csv")
+print(encoding)
+
+```
+
+```{r , eval = TRUE,message=FALSE}
+
+provincias <- read_delim("Input/DATA/provincias_sexo.csv", 
+                        delim = ";", trim_ws = TRUE, 
+                        locale = locale(encoding = "ISO-8859-1"))
 
 
-
-
-### IMPORTACIÓN DATOS CSV
+```
 
 ### PREPARACIÓN DATOS CSV
+En el archivo csv tenemos una columna total con valores numericos usando la coma como separador decimal, esta coma debe convertirse en punto ya que R usa el punto "." como separador decimal:
+
+```{r , eval = TRUE,message=FALSE}
+provincias <- provincias %>%
+  mutate(Total = as.numeric(gsub(",", ".", Total)))
+```
+
+.......seguir
+
+
+(por ejemplo quitar tmb el indice de las provincias)
+En los archivos csv aparecen el nombre de las provincias con un índice que eliminaremos ya que no le vamos a usar, y asi evitar la dificultad del entendimiento de tablas. (lo han echo en contaminación y embarazo)
+
+
+
+
+
+
+
+
+....
+Esto nose donde -->
+Como ambos archivos (csv y json) comparten la varaible sexo, podemos unirlos por dicha variable
+```{r , eval = TRUE,message=FALSE}
+merged <- provincias %>%
+  group_by(Sexo) %>%
+  summarise(Media_Provincial = mean(Total, na.rm = TRUE)) %>%
+  left_join(edades, by = "Sexo")
+```
+
+### **IMPORTACIÓN DATOS JSON:**
+
+
+
+
+### PREPARACIÓN ARCHIVOS .JSON
+
+
+
+## AQUÍ EMPEZAMOS CON LOS OBJETIVOS (EJ: RELACIÓN CONTAMINACIÓN/MORTALIDAD)
+
+
 
 
 
