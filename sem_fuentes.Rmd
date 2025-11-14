@@ -14,14 +14,21 @@ contextualiza la idea del seminario, entrega una idea general de la temática, d
 
 
 
-#**OBJETIVO GENERAL** 
-en una frase un objetivo claro y general que muestre muy claramente la relación entre variables que váis a buscar/relacionar.
+#**OBJETIVOS** 
+1. Describir la distribución del suicidio por sexo en España. 
+
+2. Analizar las diferencias entre provincias. 
+
+3. Estudiar la influencia del grupo de edad en la cantidad de suicidios. 
+
+4. Unificar los datos CSV y JSON para obtener una vista más completa. 
+
+5. (Opcional) Explorar si existe relación entre grupos de edad + provincias + sexo. 
 
 
 
-#**PREPARACIÓN DE DATOS**
-Los datos que vamos a usar an sido encontrados ....
-Para poder utilizar estos conjuntos de datos es necesario importalos, para ello utilizaremos las siguientes librerias:
+#**PAQUETES UTILIZADOS**
+Para poder utilizar nuestros conjuntos de datos es necesario importar las siguientes librerias y paquetes:
 
 ```{r , eval = TRUE,message=FALSE, warning=FALSE}
 # Datos con formato .csv:
@@ -45,12 +52,16 @@ library(mapSpain)
 
 
 
-## **IMPORTACIÓN DE ARCHIVOS**
+# **DESARROLLO Y RESULTADOS**
 Una vez cargadas las librerias importamos los datos
 
+## OBTENCIÓN DE LOS DATOS 
+Explicar de donde vienen los datos 
+
+## IMPORTACIÓN DE LOS DATOS
 
 ### **IMPORTACIÓN DATOS CSV**
-En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español :
+En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español??? :
 
 ```{r , eval = TRUE,message=FALSE}
 
@@ -68,8 +79,13 @@ provincias <- read_delim("Input/DATA/provincias_sexo.csv",
 
 
 ```
+### IMPORTACIÓN DEL JSON
 
-### PREPARACIÓN DATOS CSV
+
+## FILTRADO Y PREPARACIÓN DE LOS DATOS
+
+
+### cambiamos el separador decimal
 En el archivo csv tenemos una columna total con valores numericos usando la coma como separador decimal, esta coma debe convertirse en punto ya que R usa el punto "." como separador decimal:
 
 ```{r , eval = TRUE,message=FALSE}
@@ -77,21 +93,39 @@ provincias <- provincias %>%
   mutate(Total = as.numeric(gsub(",", ".", Total)))
 ```
 
-.......seguir
 
-
-(por ejemplo quitar tmb el indice de las provincias)
-En los archivos csv aparecen el nombre de las provincias con un índice que eliminaremos ya que no le vamos a usar, y asi evitar la dificultad del entendimiento de tablas. (lo han echo en contaminación y embarazo)
+### Normalizar nombres de provincias 
 
 
 
+### Eliminar "total" en sexo
+Para así comparar hombres vs mujeres 
+(entonces yo quitaría lo de cambiar el separador decimal xq si quitamos el total no nos hace falta camibar lo de . por , nose)
 
 
+### El JSON:separar edad y sexo
+Extraer:
+- Lista de edades
+- Lista de sexos
+- Valor 
 
+
+## RESULTADOS 
+Aquí vienen los gráficos 
+
+### Suicidio por sexo a nivel nacional
+
+
+### Suicidio por provincia
+
+
+### Suicidio por edad (JSON)
+
+### Union CSV + JSON 
 
 
 ....
-Esto nose donde -->
+Esto me lo dijo chat (puede ser para el 4.4 nose) -->
 Como ambos archivos (csv y json) comparten la varaible sexo, podemos unirlos por dicha variable
 ```{r , eval = TRUE,message=FALSE}
 merged <- provincias %>%
@@ -99,17 +133,6 @@ merged <- provincias %>%
   summarise(Media_Provincial = mean(Total, na.rm = TRUE)) %>%
   left_join(edades, by = "Sexo")
 ```
-
-### **IMPORTACIÓN DATOS JSON:**
-
-
-
-
-### PREPARACIÓN ARCHIVOS .JSON
-
-
-
-## AQUÍ EMPEZAMOS CON LOS OBJETIVOS (EJ: RELACIÓN CONTAMINACIÓN/MORTALIDAD)
 
 
 
