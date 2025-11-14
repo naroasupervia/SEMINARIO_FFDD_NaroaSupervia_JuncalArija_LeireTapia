@@ -66,21 +66,36 @@ En algunos de nuestros archivos csv, es necesario especificar el tipo de codific
 ```{r , eval = TRUE,message=FALSE}
 
 # Para conocer el tipo de codificación: 
-encoding <- guess_encoding("Input/DATA/provincias_sexo.csv")
+encoding <- guess_encoding("INPUT/DATA/provincias_sexo.csv")
 print(encoding)
 
 ```
 
 ```{r , eval = TRUE,message=FALSE}
 
-provincias <- read_delim("Input/DATA/provincias_sexo.csv", 
+provincias <- read_delim("INPUT/DATA/provincias_sexo.csv", 
                         delim = ";", trim_ws = TRUE, 
                         locale = locale(encoding = "ISO-8859-1"))
-
-
+head(provincias)
 ```
 ### IMPORTACIÓN DEL JSON
 
+
+```{r , eval = TRUE,message=FALSE}
+
+library(jsonlite)
+
+# Ruta al archivo JSON
+ruta_json <- "INPUT/DATA/Suicidio_Edad-Sexo.json"
+
+# Importar JSON y convertir a dataframe
+suicidios_json <- fromJSON(ruta_json)
+#suicidios_json <- as.data.frame(suicidios_json)
+
+# Mostrar las primeras filas
+head(suicidios_json)
+
+```
 
 ## FILTRADO Y PREPARACIÓN DE LOS DATOS
 
