@@ -61,7 +61,9 @@ library(mapSpain)
 Una vez cargadas las librerias importamos los datos
 
 ## OBTENCIÓN DE LOS DATOS 
-Explicar de donde vienen los datos 
+Para este trabajo hemos utilizado dos conjuntos de datos principales:
+- **provincias_sexo.csv**: contiene información sobre el número de suicidios por provincia y por sexo. Este archivo ha sido obtenido de fuentes estadísticas oficiales españolas, como el Instituto Nacional de Estadística (INE)???' nose si proviene de ahi.
+- **suicidio_Edad-Sexo.json**: contiene los datos de suicidios desglosados por edad y sexo a nivel nacional. Proviene de .....
 
 ## IMPORTACIÓN DE LOS DATOS
 
