@@ -12,6 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 #**INTRODUCCIÓN**
 contextualiza la idea del seminario, entrega una idea general de la temática, de lo que se sabe y sobre todo de lo que no se sabe y queréis abordar en vuestro trabajo.
 
+El suicidio es un fenómeno ocmplejo que constituye un importante problema de salud pública en España y en el mundo. Aunque se dispone de información general sobre la mortalidad por suicidio, la evidencia científica revela diferencias significativas según el sexo, la edad y el territorio.
+
+En este seminario, nos proponemos comparar el suicidio utilizando distintos conjuntos de datos (sexo, edad y territorio) para explorar las diferencias y analizar a que se deben.
+
 
 
 #**OBJETIVOS** 
@@ -37,6 +41,7 @@ library(readr)
 #Datos con formato .json:
 library(tidyverse)
 library(rjson)
+library(jsonlite)
 library(tidyjson)
 
 #Visualizacion resultados:
@@ -98,15 +103,9 @@ head(suicidios_json)
 ```
 
 ## FILTRADO Y PREPARACIÓN DE LOS DATOS
+Los datos han sido filtrados y preparados para asegurar la coherencia entre las fuentes. Se eliminaron los totales generales en sexo para poder comparar hombres y mujeres. Se normalizó el nombre de las provincias para ....noseq
+y se separó el json en edad, sexo y valor para noseqqq
 
-
-### cambiamos el separador decimal
-En el archivo csv tenemos una columna total con valores numericos usando la coma como separador decimal, esta coma debe convertirse en punto ya que R usa el punto "." como separador decimal:
-
-```{r , eval = TRUE,message=FALSE}
-provincias <- provincias %>%
-  mutate(Total = as.numeric(gsub(",", ".", Total)))
-```
 
 
 ### Normalizar nombres de provincias 
@@ -124,6 +123,21 @@ head(Suicidios_CSV_filtrado)
 ### Eliminar "total" en sexo
 Para así comparar hombres vs mujeres 
 (entonces yo quitaría lo de cambiar el separador decimal xq si quitamos el total no nos hace falta camibar lo de . por , nose)
+
+```{r , eval = TRUE,message=FALSE}
+library(dplyr)
+library(purrr)
+library(tidyr)
+
+# ===============================
+# 1. Provincias: eliminar "Total" en Sexo
+# ===============================
+provincias_filtrado <- provincias %>%
+  filter(Sexo != "Total")
+
+# Revisar resultado
+head(provincias_filtrado)
+```
 
 
 ### El JSON:separar edad y sexo
@@ -177,6 +191,53 @@ Aquí vienen los gráficos
 
 ### Suicidio por sexo a nivel nacional
 
+```{r , eval = TRUE,message=FALSE}
+# Sumar los valores por sexo
+suicidio_sexo_nacional <- Suicidios_Edad %>%
+  group_by(sexo) %>%
+  summarise(Total = sum(Valor, na.rm = TRUE))
+
+# Revisar tabla
+print(suicidio_sexo_nacional)
+
+# #GRAFICO DE BARRAS (suicidios por sexo a nivel nacional)
+ggplot(suicidio_sexo_nacional, aes(x = sexo, y = Total, fill = sexo)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Suicidios por sexo a nivel nacional",
+    x = "Sexo",
+    y = "Número total de suicidios"
+  ) +
+  scale_fill_manual(values = c("Hombres" = "#1f77b4", "Mujeres" = "#ff7f0e")) +
+  theme_minimal()
+```
+```{r , eval = TRUE,message=FALSE}
+# 1. Filtrar datos a nivel nacional (ya que JSON tiene solo sexo y edad, sumamos por sexo)
+nacional_sexo <- Suicidios_Edad %>%
+  group_by(sexo) %>%
+  summarise(Total = sum(Valor))
+
+#GRÁFICO CIRCULAR
+ggplot(nacional_sexo, aes(x = "", y = Total, fill = sexo)) +
+  geom_bar(stat = "identity", width = 1) +   # barra para convertir a circular
+  coord_polar(theta = "y") +                 # transforma a circular
+  labs(title = "Suicidios por sexo a nivel nacional") +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_manual(values = c("Hombres" = "steelblue", "Mujeres" = "pink"))
+```  
+
+INTERPRETACIÓN
+El gráfico de barras compara el total de suicidios entre hombres y mujeres, muestra que los hombreses presentan un mayor número de suicidios. El gráfico circular representa la misma información, pero en proporciones del total, muestra que los hombres representan aproximadamente el 75% de los suicidios a nivel nacional, mientras que las mujeres el 25%. 
+
+En conclusión, los análisis del total de suicidios según el sexo muestra una diferencia clara entre hombres y mujeres.
+En España, el número total de suicidios es significativamente mayor en hombres que en mujeres, lo cual coincide con las estadísitcas nacionales e internacionales, donde los hombres presentan tasas de suicidio más elevadas a pesar de que las mujeres registran más intentos no letales.
+Este patrón puede estar asociado a factores socioculturales, diferencias en métodos utilizados, menor búsqueda de ayuda por parte de los hombres o barreras sociales relaccionadas con la salud mental.
+
+
+
 
 ### Suicidio por provincia
 ```{r , eval = TRUE,message=FALSE}
@@ -206,7 +267,57 @@ ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
+
 ### Union CSV + JSON 
+
+```{r , eval = TRUE,message=FALSE}
+
+#PRIMERO FILTRAMOS SOLO LA FINLA "NACIONAL" DEL CSV Y ELIMINAMOS "TOTAL" EN SEXO:
+# Filtrar nacional y sexo masculino/femenino en CSV
+nacional_csv <- provincias %>%
+  filter(Provincias == "Nacional", Sexo != "Total") %>%
+  select(sexo = Sexo, Total)  # renombramos columna Sexo a sexo
+
+#AHORA, DEL JSON SUMAMOS LOS VALORES POR SEXO PARA TENER COMPARABLES
+nacional_json <- Suicidios_Edad %>%
+  group_by(sexo) %>%
+  summarise(Total_JSON = sum(Valor, na.rm = TRUE))
+
+#UNIMOS AMBOS DATASETS POR SEXO
+nacional_comparativo <- nacional_csv %>%
+  left_join(nacional_json, by = "sexo") %>%
+  tidyr::pivot_longer(cols = c(Total, Total_JSON),
+                      names_to = "Fuente",
+                      values_to = "Valor")
+
+```
+Ahora nacional_comparativo tiene columnas:
+- sexo --> Hombres/Mujeres 
+- Fuente --> CSV o JSON
+- valor --> número de suicidios
+```{r , eval = TRUE,message=FALSE}
+# GRAFICO COMPARATIVO (BARRAS LADO A LADO)
+ggplot(nacional_comparativo, aes(x = sexo, y = Valor, fill = Fuente)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  labs(
+    title = "Comparación de suicidios por sexo a nivel nacional: CSV vs JSON",
+    x = "Sexo",
+    y = "Número total de suicidios"
+  ) +
+  scale_fill_manual(values = c("Total" = "#1f77b4", "Total_JSON" = "#ff7f0e"),
+                    labels = c("CSV", "JSON")) +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 12),
+    axis.text.x = element_text(angle = 0, hjust = 0.5)
+  )
+```
+ME FALTA COMENTAR EL RESULTADO (poner foto a chati y q diga), VER SI CON LOS DOS (CVS Y JSON) PUEDO HACER ALGUNA COMPARACIÓN MAS Y PONER EN EL WORD LA EXPLICACIÓN DEL CODIGO.
+
+
+
+
+
 
 
 ....
@@ -224,3 +335,10 @@ merged <- provincias %>%
 
 
 #REFERENCIAS 
+
+
+
+
+
+
+
