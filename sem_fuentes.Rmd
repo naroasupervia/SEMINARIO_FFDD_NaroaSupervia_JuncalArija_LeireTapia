@@ -110,8 +110,16 @@ provincias <- provincias %>%
 
 
 ### Normalizar nombres de provincias 
+```{r , eval = TRUE,message=FALSE}
+# Crear el dataframe filtrado para el gráfico
+# (Usa el dataframe 'provincias' que ya cargaste y mutaste)
+Suicidios_CSV_filtrado <- provincias %>%
+  filter(Sexo != "Total", 
+         Provincias != "Nacional")
 
-
+# Ver el resultado (opcional)
+head(Suicidios_CSV_filtrado)
+```
 
 ### Eliminar "total" en sexo
 Para así comparar hombres vs mujeres 
@@ -123,7 +131,46 @@ Extraer:
 - Lista de edades
 - Lista de sexos
 - Valor 
+```{r , eval = TRUE,message=FALSE}
+# Chunk CORREGIDO para: ### El JSON:separar edad y sexo
+# (Asegúrate de tener 'library(tidyverse)' y 'library(jsonlite)' en tu chunk de paquetes)
 
+# Este código usa un método más robusto para "aplanar" el JSON
+# y evitar que se creen valores NA.
+
+Suicidios_Edad <- as_tibble(suicidios_json) %>%
+  
+  # 1. Extraer el 'Valor' de la sub-lista 'Data'
+  #    (map_dbl toma cada elemento de 'Data' y extrae el primer 'Valor')
+  mutate(Valor = map_dbl(Data, ~ .x$Valor[1])) %>%
+  
+  # 2. Guardar el 'Nombre' original (ej. "De 15 a 29 años, Hombres")
+  #    como un ID único para agrupar las filas.
+  select(ID_Fila = Nombre, Valor, MetaData) %>%
+  
+  # 3. Desanidar 'MetaData', que creará dos filas por cada ID_Fila
+  #    (una para 'edad' y otra para 'sexo')
+  unnest(MetaData) %>%
+  
+  # 4. Seleccionar solo las columnas que necesitamos para pivotar
+  select(ID_Fila, Valor, T3_Variable, Nombre) %>%
+
+  # 5. Pivotar usando el ID_Fila. Esto asegura que la 'edad' y el 'sexo'
+  #    del mismo ID_Fila terminen en la misma fila, junto a su 'Valor'.
+  pivot_wider(names_from = T3_Variable, values_from = Nombre) %>%
+  
+  # 6. Filtrar los totales (como antes)
+  filter(sexo != "Ambos sexos",
+         edad != "Todas las edades") %>%
+  
+  # 7. (Opcional) Quitar la columna de ID, ya no la necesitamos
+  select(edad, sexo, Valor)
+
+# Ver el resultado (opcional)
+# Esta tabla ya no debería tener NAs en 'edad' o 'sexo'
+print("Datos JSON (versión final) listos:")
+head(Suicidios_Edad)
+```
 
 ## RESULTADOS 
 Aquí vienen los gráficos 
@@ -132,10 +179,33 @@ Aquí vienen los gráficos
 
 
 ### Suicidio por provincia
+```{r , eval = TRUE,message=FALSE}
+# Carga la librería plotly (si no está ya cargada)
+library(plotly)
 
+# 1. CREA el gráfico de ggplot (como antes, pero lo guardamos en una variable 'p')
+#    (Añado 'ncol=6' para que plotly tenga un layout inicial ordenado)
+p <- ggplot(Suicidios_CSV_filtrado, aes(x = Sexo, y = Total, color = Sexo)) + 
+  geom_point() + 
+  facet_wrap(~Provincias, ncol = 6) + # 6 columnas de mini-gráficos
+  theme(
+    axis.text.x = element_text(angle = 0), 
+    strip.text = element_text(size = 7) 
+  )
 
+# 2. CONVIÉRTELO en interactivo con un solo comando
+#    Ahora podrás hacer zoom y ver los detalles
+ggplotly(p)
+```
 ### Suicidio por edad (JSON)
+```{r , eval = TRUE,message=FALSE}
+# Gráfico 4.4.3: Suicidio por edad (CORREGIDO)
+# La corrección está en aes(fill = sexo) -> (todo en minúscula)
 
+ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
 ### Union CSV + JSON 
 
 
@@ -148,9 +218,6 @@ merged <- provincias %>%
   summarise(Media_Provincial = mean(Total, na.rm = TRUE)) %>%
   left_join(edades, by = "Sexo")
 ```
-
-
-
 
 # CONCLUSIONES
 
