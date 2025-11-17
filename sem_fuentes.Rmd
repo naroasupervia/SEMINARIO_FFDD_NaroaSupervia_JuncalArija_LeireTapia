@@ -90,8 +90,6 @@ head(provincias)
 
 ```{r , eval = TRUE,message=FALSE}
 
-library(jsonlite)
-
 # Ruta al archivo JSON
 ruta_json <- "INPUT/DATA/Suicidio_Edad-Sexo.json"
 
@@ -140,6 +138,9 @@ provincias_filtrado <- provincias %>%
 # Revisar resultado
 head(provincias_filtrado)
 ```
+### HACER UN FILTRO EN EL NOMBRE DE LAS PROVINCIAS PARA QUE LOS NOMBRES SE VEAN BIEN Y NO CON CARACTERES RAROS, POR EJEMPLO QUITAR LAS TILDES O LAS Ñ
+
+
 
 
 ### El JSON:separar edad y sexo
