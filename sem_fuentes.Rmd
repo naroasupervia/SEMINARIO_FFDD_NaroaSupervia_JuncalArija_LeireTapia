@@ -336,17 +336,7 @@ ggplot(nacional_comparativo, aes(x = sexo, y = Valor, fill = Fuente)) +
     axis.text.x = element_text(angle = 0, hjust = 0.5)
   )
 ```
-ME FALTA COMENTAR EL RESULTADO (poner foto a chati y q diga), VER SI CON LOS DOS (CVS Y JSON) PUEDO HACER ALGUNA COMPARACIÓN MAS Y PONER EN EL WORD LA EXPLICACIÓN DEL CODIGO.
 
-
-
-
-
-
-
-....
-Esto me lo dijo chat (puede ser para el 4.4 nose) -->
-Como ambos archivos (csv y json) comparten la varaible sexo, podemos unirlos por dicha variable
 ```{r , eval = TRUE,message=FALSE}
 
 ```
