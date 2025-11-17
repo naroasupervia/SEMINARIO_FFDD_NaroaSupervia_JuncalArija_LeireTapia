@@ -348,10 +348,7 @@ ME FALTA COMENTAR EL RESULTADO (poner foto a chati y q diga), VER SI CON LOS DOS
 Esto me lo dijo chat (puede ser para el 4.4 nose) -->
 Como ambos archivos (csv y json) comparten la varaible sexo, podemos unirlos por dicha variable
 ```{r , eval = TRUE,message=FALSE}
-merged <- provincias %>%
-  group_by(Sexo) %>%
-  summarise(Media_Provincial = mean(Total, na.rm = TRUE)) %>%
-  left_join(edades, by = "Sexo")
+
 ```
 
 # CONCLUSIONES
