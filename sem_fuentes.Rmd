@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#**INTRODUCCIÓN**
+# **INTRODUCCIÓN**
 contextualiza la idea del seminario, entrega una idea general de la temática, de lo que se sabe y sobre todo de lo que no se sabe y queréis abordar en vuestro trabajo.
 
 El suicidio es un fenómeno ocmplejo que constituye un importante problema de salud pública en España y en el mundo. Aunque se dispone de información general sobre la mortalidad por suicidio, la evidencia científica revela diferencias significativas según el sexo, la edad y el territorio.
@@ -18,7 +18,7 @@ En este seminario, nos proponemos comparar el suicidio utilizando distintos conj
 
 
 
-#**OBJETIVOS** 
+# **OBJETIVOS** 
 1. Describir la distribución del suicidio por sexo en España. 
 
 2. Analizar las diferencias entre provincias. 
@@ -31,7 +31,7 @@ En este seminario, nos proponemos comparar el suicidio utilizando distintos conj
 
 
 
-#**PAQUETES UTILIZADOS**
+# **PAQUETES UTILIZADOS**
 Para poder utilizar nuestros conjuntos de datos es necesario importar las siguientes librerias y paquetes:
 
 ```{r , eval = TRUE,message=FALSE, warning=FALSE}
