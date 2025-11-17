@@ -61,9 +61,28 @@ library(mapSpain)
 Una vez cargadas las librerias importamos los datos
 
 ## OBTENCIÓN DE LOS DATOS 
-Para este trabajo hemos utilizado dos conjuntos de datos principales:
-- **provincias_sexo.csv**: contiene información sobre el número de suicidios por provincia y por sexo. Este archivo ha sido obtenido de fuentes estadísticas oficiales españolas, como el Instituto Nacional de Estadística (INE)???' nose si proviene de ahi.
-- **suicidio_Edad-Sexo.json**: contiene los datos de suicidios desglosados por edad y sexo a nivel nacional. Proviene de .....
+Para este trabajo se han utilizado dos conjuntos de datos procedentes del Instituto Nacional de Estadísitca (INE), a través de sus estadísticas oficiales sobre defunciones según causa de muerte. Ambas fuentes se han descargado directamente desde la herramienta de consulta del INE y contienen información actualizada y validada por el organismo. 
+
+- **provincias_sexo.csv**: Este archivo recoge la tasa de suicidios por cada 100.000 habitantes en Esapaña, desglosada por: provincia, sexo (total, hombes, mujeres) y año (2021, 2022 y 2023). 
+Cada fila representa la tasa correspondiente a un territorio y un sexo concreto en un año determinado.
+Estos valores provienen directamente el INE y reflejan las tasas oficiales calculadas del instituto, basadas en la población residente de cada año. 
+Este archivo le hemos utilizado para:
+  - Analizar la evolución reciente (2021 - 2023) 
+  - Las diferencias entre sexos 
+  - Las variaciones territoriales entre provincias.
+
+- **suicidio_Edad-Sexo.json**: Este JSON  contiene el número absoluto de suicidios registrados a nivel nacional en el año 2022 (creemos). Está desglosado por grupo de edad y por sexo. 
+La estructura del Json incluye:
+  - Un campo MetaData, donde se especifíca el sexo y el grupo de edad.
+  - Un campo Data, donde aparece el valor numérico de suicidios en ese grupo.
+Estos datos también han sido descargados del INE y corresponden al mismo sistema estadístico, pero en este caso sin convertirlos en tasas, es decir, son numéros absolutos de casos, no tasas de población.
+Este archivo se ha empleado para:
+  - Calcular los suicidios totales por sexo
+  - Relacionar los valores con la población para obtener tasas a medida
+  - Analizar diferencias entre grupos de edad
+  
+En resumen, el CSV ofrece tasas por provincia, sexo y año, mientras que el JSON proporciona números absolutos por edad y sexo a nivel nacional. Esta combinación permite un análisis estadístico completo tanto a nivel territorial como demográfico. 
+
 
 ## IMPORTACIÓN DE LOS DATOS
 
@@ -270,8 +289,10 @@ ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
+Explicar lo que hemos obtenido del gráfico
 
 ### Union CSV + JSON 
+CAMBIAR:
 
 ```{r , eval = TRUE,message=FALSE}
 
