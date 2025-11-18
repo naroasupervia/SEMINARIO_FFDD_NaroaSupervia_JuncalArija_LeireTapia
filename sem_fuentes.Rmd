@@ -127,7 +127,7 @@ y se separó el json en edad, sexo y valor para noseqqq
 
 
 
-### Normalizar nombres de provincias 
+### Normalizar nombres de provincias (quitar tildes, ñ o cosas q hagan q los nombres se vean mal)
 ```{r , eval = TRUE,message=FALSE}
 # Crear el dataframe filtrado para el gráfico
 # (Usa el dataframe 'provincias' que ya cargaste y mutaste)
@@ -157,9 +157,6 @@ provincias_filtrado <- provincias %>%
 # Revisar resultado
 head(provincias_filtrado)
 ```
-### HACER UN FILTRO EN EL NOMBRE DE LAS PROVINCIAS PARA QUE LOS NOMBRES SE VEAN BIEN Y NO CON CARACTERES RAROS, POR EJEMPLO QUITAR LAS TILDES O LAS Ñ
-
-
 
 
 ### El JSON:separar edad y sexo
@@ -212,7 +209,8 @@ head(Suicidios_Edad)
 Aquí vienen los gráficos 
 
 ### Suicidio por sexo a nivel nacional
-
+Usando los datos del JSON, a partir de la tabla Suicidios_Edad (con las columnas sexo, edad y valor), agrupamos los datos que tengan el mismo valor en la columna sexo (hombres/mujeres) y para cada grupo hemos calculado la suma total de la columna valor. Como resultado obtenemos un nuevo tibble de 2 filas (una por sexo), con las columnas sexo y total.
+Con el nuevo tibble creamos un gráfico de barras.
 ```{r , eval = TRUE,message=FALSE}
 # Sumar los valores por sexo
 suicidio_sexo_nacional <- Suicidios_Edad %>%
@@ -233,11 +231,16 @@ ggplot(suicidio_sexo_nacional, aes(x = sexo, y = Total, fill = sexo)) +
   scale_fill_manual(values = c("Hombres" = "#1f77b4", "Mujeres" = "#ff7f0e")) +
   theme_minimal()
 ```
+
+Podemos representar los datos anteriores en otros tipos de gráfico, por ejemplo el gráfico circular.
+Igual que en el anterior, agrupamos los datos que tengan el mismo valor en la columna sexo, y para cada grupo calculamos la suma total de la columna valor, obteniendo como resultado un nuevo tibble para llevar a cabo el gráfico circular.
 ```{r , eval = TRUE,message=FALSE}
 # 1. Filtrar datos a nivel nacional (ya que JSON tiene solo sexo y edad, sumamos por sexo)
 nacional_sexo <- Suicidios_Edad %>%
   group_by(sexo) %>%
   summarise(Total = sum(Valor))
+
+print(nacional_sexo) #visualizamos el nuevo tibble
 
 #GRÁFICO CIRCULAR
 ggplot(nacional_sexo, aes(x = "", y = Total, fill = sexo)) +
