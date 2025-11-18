@@ -318,7 +318,7 @@ ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
 ### Union CSV + JSON 
 Como el CSV tiene los datos en referencia a 100.000 habitantes, vamos a hacer lo mismo con el JSON y así podremos compararlos.
 
-1. Creacción de la tabla de referencia
+**1. Creacción de la tabla de referencia**
 En este paso,creamos una tabla de referencia de población, para ello usamos los datos oficiales totales de hombres y mujeres encontrados en INE.
 En esta nueva tabla la columna sexo será clave para unirla posteriormente con nuestros datos.
 
@@ -332,7 +332,8 @@ poblacion_ref <- data.frame(
 print(poblacion_ref)
 
 ```
-2. Unión y cálculo de tasas
+**2. Unión y cálculo de tasas**
+
 Unimos la nueva tabla creada con la población de referencia al JSON y calculamos las tasas.
 Left_join: Esta función incorpora los datos de la tabla calculada anteriormente (poblacion_ref) a nuestra tabla principal (suicidios_edad). Busca coindidencias en la columna comun 'sexo' y añade la columna 'Poblacion_Nacional' a cada fila correspondiente.
 mutate(Tasa_aportacion...): crea una nueva columna calculada que nos da la tasa específica de ese grupo de edad. Nos dice cuantos suicidios aporta ese rango de edad para cada 100.000 habitantes de ese sexo. 
@@ -350,7 +351,8 @@ head(Suicidios_Con_Tasas)
 
 ```
 
-3. Gráfico comparativo.
+**3. Gráfico comparativo**
+
 Generamos un gráfico de barras para visualizar las tasas calculadas para cada grupo de edad, confirmando que se corresponde con la misma forma del anterior gráfico, pero esta vez, calculado con la tasa por cada 100.000 habitantes del mismo sexo.
 
 ```{r , eval = TRUE,message=FALSE}
@@ -374,7 +376,8 @@ ggplot(Suicidios_Con_Tasas, aes(x = edad, y = Tasa_Aportacion, fill = sexo)) +
 ```
 
 
-4. Validación (unión)
+**4. Validación (unión)**
+
 Este es el paso de control de calidad para demostrar que las fuentes (CSV y JSON) son coherentes entre sí.
 - validacion_json: Agrupamos los datos del JSON por sexo y sumamos todas las tasas parciales de los grupos de edad. La suma de las partes debe dar el total nacional.
 - validacion_csv: Filtramos para quedarnos solo con el dato nacional de 2022 (ya que el JSON  se corresponde también con dicho año)
@@ -406,7 +409,8 @@ print(comparativa_fuentes)
 
 ```
 
-5- Gráfico comparando CSV y JSON
+**5- Gráfico comparando CSV y JSON**
+
 Representamos gráficamente la validación anterior. El siguiente gráfico nos permite confirmar visualmente la cosistencia entre nuestras dos fuentes de datos. Si las barras de cada par tienen la misma altura, significa que la integración de los datos absolutos del JSON con las tasas oficiales del CSV se corresponden.
 ```{r , eval = TRUE,message=FALSE}
 # 1. Preparamos los datos 
@@ -449,7 +453,8 @@ ggplot(datos_grafico, aes(x = sexo, y = Tasa, fill = Fuente)) +
   theme(legend.position = "top")
 ``` 
 
-INTERPRETACIÓN Y VALIZACIÓN DE RESULTADOS 
+INTERPRETACIÓN Y VALIZACIÓN DE RESULTADOS
+
 El gráfico de barras agrupadas compara las tasas de suicidio por sexo obtenidas de dos formas distintas:
 - Dato oficial (CSV): La tasa publicada directamente por el INE
 - Cálculo propio (JSON): La tasa que hemos calculado nosotros mismos sumando los suicidios absolutos por edad del JSON y dividiéndolos por la población oficial de España.
@@ -458,7 +463,9 @@ Como se puede observar, las barras verdes y las grises son prácticamente idént
 - La validación metodológica, nuestro procedimiento para unir las bases de datos y calcular las tasas por edad ha sido correcto. 
 - La consistencia de los datos, confirmarmos que ambas fuentes de datos del INE son coherentes entre sí, asegurando que los análisis detallados que hemos realizado anteriormente son representativos y fiables.
 
-6. Análisis brecha de género
+
+**6. Análisis brecha de género**
+
 Para finalizar, calculamos cuántos hombres se suicidan por cada mujer en cada grupo de edad. Este gráfico responde a la pregunta: "¿Por cada mujer que se suicida en este grupo de edad, cuántos hombres lo hacen?. Un valor de 1 significa igualdad, un valor de 3 significa que hay 3 veces más suicidios masculinos en dicho grupo.
 
 ```{r , eval = TRUE,message=FALSE}
@@ -487,6 +494,7 @@ ggplot(brecha_genero, aes(x = edad, y = Ratio_H_M)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 INTERPRETACIÓN
+
 Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos los grupos de edad (todos los ratios son superiores a 1). Sin embargo, observamos que la brecha no es constante, se dispara en el grupo de 85 a 89 años, donde hay casi 5 hombres por cada mujer.
 
 
@@ -500,7 +508,7 @@ Tras el análisis comparativo de las tasas de suicidio en España utilizando dat
 
 Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados: hombres y....
 
-#REFERENCIAS 
+# REFERENCIAS 
 
 
 
