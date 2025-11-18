@@ -52,7 +52,7 @@ library(gganimate)
 library(plotly)
 library(dplyr)
 library(mapSpain)
-
+library(knitr) # librería para tablas 
 ```
 
 
@@ -100,8 +100,10 @@ print(encoding)
 ```{r , eval = TRUE,message=FALSE}
 
 provincias <- read_delim("INPUT/DATA/provincias_sexo.csv", 
-                        delim = ";", trim_ws = TRUE, 
-                        locale = locale(encoding = "ISO-8859-1"))
+                         delim = ";", trim_ws = TRUE, 
+                         locale = locale(encoding = "ISO-8859-1"),
+                         # FORZAMOS QUE TODO SE LEA COMO TEXTO AL PRINCIPIO
+                         col_types = cols(.default = "c"))
 head(provincias)
 ```
 ### IMPORTACIÓN DEL JSON
@@ -125,6 +127,25 @@ head(suicidios_json)
 Los datos han sido filtrados y preparados para asegurar la coherencia entre las fuentes. Se eliminaron los totales generales en sexo para poder comparar hombres y mujeres. Se normalizó el nombre de las provincias para ....noseq
 y se separó el json en edad, sexo y valor para noseqqq
 
+### Convertir la columna 'Total' del CSV de texto a número
+```{r , eval = TRUE,message=FALSE}
+provincias <- provincias %>%
+  mutate(
+    # Ahora 'Total' es texto seguro (ej: "13,34").
+    # Cambiamos la coma por punto.
+    Total = as.numeric(gsub(",", ".", Total)),
+    # Aprovechamos para convertir 'Periodo' a número también
+    Periodo = as.numeric(Periodo)
+  )
+
+# Ahora creamos el dataframe filtrado
+Suicidios_CSV_filtrado <- provincias %>%
+  filter(Sexo != "Total", 
+         Provincias != "Nacional")
+
+# Verificamos: Total debe ser <dbl> (número real con decimales)
+head(Suicidios_CSV_filtrado)
+```
 
 
 ### Normalizar nombres de provincias (quitar tildes, ñ o cosas q hagan q los nombres se vean mal)
@@ -292,61 +313,192 @@ ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
-Explicar lo que hemos obtenido del gráfico
+
 
 ### Union CSV + JSON 
-CAMBIAR:
+Como el CSV tiene los datos en referencia a 100.000 habitantes, vamos a hacer lo mismo con el JSON y así podremos compararlos.
+
+1. Creacción de la tabla de referencia
+En este paso,creamos una tabla de referencia de población, para ello usamos los datos oficiales totales de hombres y mujeres encontrados en INE.
+En esta nueva tabla la columna sexo será clave para unirla posteriormente con nuestros datos.
 
 ```{r , eval = TRUE,message=FALSE}
 
-#PRIMERO FILTRAMOS SOLO LA FINLA "NACIONAL" DEL CSV Y ELIMINAMOS "TOTAL" EN SEXO:
-# Filtrar nacional y sexo masculino/femenino en CSV
-nacional_csv <- provincias %>%
-  filter(Provincias == "Nacional", Sexo != "Total") %>%
-  select(sexo = Sexo, Total)  # renombramos columna Sexo a sexo
+poblacion_ref <- data.frame(
+  sexo = c("Hombres", "Mujeres"),
+  Poblacion_Nacional = c(23265381, 24210039) 
+)
 
-#AHORA, DEL JSON SUMAMOS LOS VALORES POR SEXO PARA TENER COMPARABLES
-nacional_json <- Suicidios_Edad %>%
-  group_by(sexo) %>%
-  summarise(Total_JSON = sum(Valor, na.rm = TRUE))
-
-#UNIMOS AMBOS DATASETS POR SEXO
-nacional_comparativo <- nacional_csv %>%
-  left_join(nacional_json, by = "sexo") %>%
-  tidyr::pivot_longer(cols = c(Total, Total_JSON),
-                      names_to = "Fuente",
-                      values_to = "Valor")
+print(poblacion_ref)
 
 ```
-Ahora nacional_comparativo tiene columnas:
-- sexo --> Hombres/Mujeres 
-- Fuente --> CSV o JSON
-- valor --> número de suicidios
+2. Unión y cálculo de tasas
+Unimos la nueva tabla creada con la población de referencia al JSON y calculamos las tasas.
+Left_join: Esta función incorpora los datos de la tabla calculada anteriormente (poblacion_ref) a nuestra tabla principal (suicidios_edad). Busca coindidencias en la columna comun 'sexo' y añade la columna 'Poblacion_Nacional' a cada fila correspondiente.
+mutate(Tasa_aportacion...): crea una nueva columna calculada que nos da la tasa específica de ese grupo de edad. Nos dice cuantos suicidios aporta ese rango de edad para cada 100.000 habitantes de ese sexo. 
+
 ```{r , eval = TRUE,message=FALSE}
-# GRAFICO COMPARATIVO (BARRAS LADO A LADO)
-ggplot(nacional_comparativo, aes(x = sexo, y = Valor, fill = Fuente)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+# Partimos de la tabla 'Suicidios_Edad' que creamos al procesar el JSON
+Suicidios_Con_Tasas <- Suicidios_Edad %>%
+  # Unimos con nuestra tabla de población manual mediante un left_join
+  left_join(poblacion_ref, by = "sexo") %>%
+  # Calculamos la tasa por 100.000 habitantes
+  mutate(Tasa_Aportacion = (Valor / Poblacion_Nacional) * 100000)
+
+# Visualizamos la tabla resultante
+head(Suicidios_Con_Tasas)
+
+```
+
+3. Gráfico comparativo.
+Generamos un gráfico de barras para visualizar las tasas calculadas para cada grupo de edad, confirmando que se corresponde con la misma forma del anterior gráfico, pero esta vez, calculado con la tasa por cada 100.000 habitantes del mismo sexo.
+
+```{r , eval = TRUE,message=FALSE}
+#En el eje X ponemos los grupos de edad y en el eje Y la tasa calculada.
+#Con 'dodge', las barras de hombres y mujeres se colocan una al lado de otra, evitando solapamientos. 
+ggplot(Suicidios_Con_Tasas, aes(x = edad, y = Tasa_Aportacion, fill = sexo)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("Hombres" = "#1f77b4", "Mujeres" = "#ff7f0e")) +
   labs(
-    title = "Comparación de suicidios por sexo a nivel nacional: CSV vs JSON",
-    x = "Sexo",
-    y = "Número total de suicidios"
+    title = "Tasa de suicidios por grupo de edad (2022)",
+    subtitle = "Tasa por cada 100.000 habitantes del mismo sexo",
+    y = "Tasa (x 100.000 hab.)",
+    x = "Grupo de Edad"
   ) +
-  scale_fill_manual(values = c("Total" = "#1f77b4", "Total_JSON" = "#ff7f0e"),
-                    labels = c("CSV", "JSON")) +
   theme_minimal() +
+  #rotamos 45 grados las etiquetas del eje X porque los nombres de los grupos de edad son largos y si no se solaparían.
   theme(
-    text = element_text(size = 12),
-    axis.text.x = element_text(angle = 0, hjust = 0.5)
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
   )
 ```
 
+
+4. Validación (unión)
+Este es el paso de control de calidad para demostrar que las fuentes (CSV y JSON) son coherentes entre sí.
+- validacion_json: Agrupamos los datos del JSON por sexo y sumamos todas las tasas parciales de los grupos de edad. La suma de las partes debe dar el total nacional.
+- validacion_csv: Filtramos para quedarnos solo con el dato nacional de 2022 (ya que el JSON  se corresponde también con dicho año)
+- left_join: Une los dos resultados en una sola tabla (comparativa_fuentes). Si los números coindicen, hemos demostrado que la integración de los datos es correcta. 
+
 ```{r , eval = TRUE,message=FALSE}
+# 1. Calculamos la tasa total del JSON
+validacion_json <- Suicidios_Con_Tasas %>%
+  group_by(sexo) %>%
+  summarise(Tasa_Calculada_JSON = sum(Tasa_Aportacion))
+
+# 2. Sacamos la tasa del CSV (¡Ahora ya está limpia!)
+validacion_csv <- provincias %>% 
+  filter(Provincias == "Nacional", Periodo == 2022, Sexo != "Total") %>%
+  select(Sexo, Tasa_Oficial_CSV = Total)
+
+# 3. Unimos ambas tablas
+comparativa_fuentes <- left_join(validacion_json, validacion_csv, by = c("sexo" = "Sexo"))
+
+print(comparativa_fuentes)
+
+
+# 4. Para poner la tabla bonita 
+#library(knitr)
+#kable(comparativa_fuentes, 
+     # col.names = c("Sexo", "Tasa JSON (Calculada)", "Tasa CSV (Oficial)"),
+     # digits = 2, 
+     # caption = "Validación de tasas (2022)")
 
 ```
 
+5- Gráfico comparando CSV y JSON
+Representamos gráficamente la validación anterior. El siguiente gráfico nos permite confirmar visualmente la cosistencia entre nuestras dos fuentes de datos. Si las barras de cada par tienen la misma altura, significa que la integración de los datos absolutos del JSON con las tasas oficiales del CSV se corresponden.
+```{r , eval = TRUE,message=FALSE}
+# 1. Preparamos los datos 
+
+# A) Datos del JSON (Calculados)
+datos_json <- comparativa_fuentes %>%
+  select(sexo, Tasa = Tasa_Calculada_JSON) %>%
+  mutate(
+    Fuente = "Cálculo propio (JSON)",
+    Tasa = as.numeric(Tasa) # Aseguramos que sea número
+  )
+
+# B) Datos del CSV (Oficiales) 
+datos_csv <- comparativa_fuentes %>%
+  select(sexo, Tasa = Tasa_Oficial_CSV) %>%
+  mutate(
+    Fuente = "Dato Oficial (CSV)",
+    # Pasamos a texto -> cambiamos coma por punto -> pasamos a número
+    Tasa = as.numeric(gsub(",", ".", as.character(Tasa)))
+  )
+
+# C) Unimos las dos tablas (ahora sí, ambas son numéricas)
+datos_grafico <- bind_rows(datos_json, datos_csv)
+
+# 2. Creamos el gráfico de barras agrupadas
+ggplot(datos_grafico, aes(x = sexo, y = Tasa, fill = Fuente)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  geom_text(aes(label = round(Tasa, 2)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5, size = 3.5) +
+  scale_fill_manual(values = c("Cálculo propio (JSON)" = "#2ca02c", "Dato Oficial (CSV)" = "#7f7f7f")) +
+  labs(
+    title = "Comparativa de consistencia entre fuentes de datos",
+    subtitle = "Tasa de suicidio por sexo (Año 2022)",
+    y = "Tasa (por 100.000 hab.)",
+    x = "Sexo",
+    fill = "Fuente de datos"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "top")
+``` 
+
+INTERPRETACIÓN Y VALIZACIÓN DE RESULTADOS 
+El gráfico de barras agrupadas compara las tasas de suicidio por sexo obtenidas de dos formas distintas:
+- Dato oficial (CSV): La tasa publicada directamente por el INE
+- Cálculo propio (JSON): La tasa que hemos calculado nosotros mismos sumando los suicidios absolutos por edad del JSON y dividiéndolos por la población oficial de España.
+
+Como se puede observar, las barras verdes y las grises son prácticamente idénticas tanto para hombres como para mujeres. Esta coincidencia nos permite afirmar:
+- La validación metodológica, nuestro procedimiento para unir las bases de datos y calcular las tasas por edad ha sido correcto. 
+- La consistencia de los datos, confirmarmos que ambas fuentes de datos del INE son coherentes entre sí, asegurando que los análisis detallados que hemos realizado anteriormente son representativos y fiables.
+
+6. Análisis brecha de género
+Para finalizar, calculamos cuántos hombres se suicidan por cada mujer en cada grupo de edad. Este gráfico responde a la pregunta: "¿Por cada mujer que se suicida en este grupo de edad, cuántos hombres lo hacen?. Un valor de 1 significa igualdad, un valor de 3 significa que hay 3 veces más suicidios masculinos en dicho grupo.
+
+```{r , eval = TRUE,message=FALSE}
+# 1. Preparamos los datos: Pivotamos para tener Hombres y Mujeres en columnas
+brecha_genero <- Suicidios_Con_Tasas %>%
+  select(edad, sexo, Tasa_Aportacion) %>%
+  pivot_wider(names_from = sexo, values_from = Tasa_Aportacion) %>%
+  # Calculamos el Ratio (Cuántos hombres por cada mujer)
+  mutate(Ratio_H_M = Hombres / Mujeres)
+
+# 2. Gráfico de Piruleta (Lollipop Chart) para visualizar la diferencia
+ggplot(brecha_genero, aes(x = edad, y = Ratio_H_M)) +
+  # Línea vertical desde 0 hasta el punto
+  geom_segment(aes(x = edad, xend = edad, y = 0, yend = Ratio_H_M), color = "grey") +
+  # Punto en el valor del ratio
+  geom_point(size = 4, color = "#1f77b4") +
+  # Texto con el valor exacto
+  geom_text(aes(label = round(Ratio_H_M, 1)), vjust = -0.8, size = 3) +
+  labs(
+    title = "Brecha de género en el suicidio por edad",
+    subtitle = "Ratio de masculinidad: Número de suicidios masculinos por cada suicidio femenino",
+    y = "Ratio (Hombres / Mujeres)",
+    x = "Grupo de Edad"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+INTERPRETACIÓN
+Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos los grupos de edad (todos los ratios son superiores a 1). Sin embargo, observamos que la brecha no es constante, se dispara en el grupo de 85 a 89 años, donde hay casi 5 hombres por cada mujer.
+
+
+
 # CONCLUSIONES
+Tras el análisis comparativo de las tasas de suicidio en España utilizando datos oficiales del INE, podemos extraer las siguientes conclsiones princiaples:
+- una linea por grafico
+.............
 
 
+
+Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados: hombres y....
 
 #REFERENCIAS 
 
