@@ -284,27 +284,145 @@ En conclusión, los análisis del total de suicidios según el sexo muestra una 
 En España, el número total de suicidios es significativamente mayor en hombres que en mujeres, lo cual coincide con las estadísitcas nacionales e internacionales, donde los hombres presentan tasas de suicidio más elevadas a pesar de que las mujeres registran más intentos no letales.
 Este patrón puede estar asociado a factores socioculturales, diferencias en métodos utilizados, menor búsqueda de ayuda por parte de los hombres o barreras sociales relaccionadas con la salud mental.
 
-
-
-
+### Suicidio por provincia
 ### Suicidio por provincia
 ```{r , eval = TRUE,message=FALSE}
-# Carga la librería plotly (si no está ya cargada)
+library(readr)
+library(dplyr)
+library(ggplot2)
 library(plotly)
+library(scales) 
+library(stringr) 
 
-# 1. CREA el gráfico de ggplot (como antes, pero lo guardamos en una variable 'p')
-#    (Añado 'ncol=6' para que plotly tenga un layout inicial ordenado)
-p <- ggplot(Suicidios_CSV_filtrado, aes(x = Sexo, y = Total, color = Sexo)) + 
-  geom_point() + 
-  facet_wrap(~Provincias, ncol = 6) + # 6 columnas de mini-gráficos
-  theme(
-    axis.text.x = element_text(angle = 0), 
-    strip.text = element_text(size = 7) 
+# Esta opción mejora la visualización de números largos
+options(scipen = 999) 
+
+# 1. LIMPIEZA Y FILTRADO (Partimos de la variable 'provincias' ya cargada)
+Suicidios_CSV_filtrado_FINAL <- provincias %>%
+  # 1. Filtrar Nacional y Total (como ya lo haces)
+  filter(Sexo != "Total",
+         Provincias != "Nacional") %>%
+  mutate(
+    # 2. Eliminar código numérico y espacio inicial (ej: "01 " de "01 Araba/Álava")
+    Nombre_Limpio = str_remove(Provincias, "^\\d{1,2}\\s"),
+    
+    # 3. Arreglos para nombres bilingües/largos y unificar entradas
+    Nombre_Final = case_when(
+        str_detect(Nombre_Limpio, "Alacant/Alicante") ~ "Alicante",
+        str_detect(Nombre_Limpio, "Castelló/Castellón") ~ "Castellón",
+        str_detect(Nombre_Limpio, "València/Valencia") ~ "Valencia",
+        str_detect(Nombre_Limpio, "Araba/Álava") ~ "Álava", 
+        str_detect(Nombre_Limpio, "Balears, Illes") ~ "Baleares",
+        str_detect(Nombre_Limpio, "A Coruña") ~ "A Coruña",
+        # 💥 Arreglo para que las mayúsculas (ÁVILA, LEÓN) pasen a minúscula y título
+        TRUE ~ str_to_title(tolower(Nombre_Limpio))
+    )
   )
 
-# 2. CONVIÉRTELO en interactivo con un solo comando
-#    Ahora podrás hacer zoom y ver los detalles
-ggplotly(p)
+
+# 2. CREA el gráfico de ggplot
+p <- ggplot(Suicidios_CSV_filtrado_FINAL, aes(x = Sexo, y = Total, color = Sexo)) + 
+  geom_point(size = 3, alpha = 0.8) + 
+  # Usamos la columna Nombre_Final limpia para el facetado
+  facet_wrap(~Nombre_Final, ncol = 6) + 
+  labs(
+    title = "Tasa de Suicidio por Provincia y Sexo (2021-2023)",
+    subtitle = "Tasa por 100.000 habitantes. Se excluye el dato nacional.",
+    x = "Sexo",
+    y = "Tasa Total (x 100.000 hab.)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 0), 
+    strip.text = element_text(size = 7),
+    legend.position = "bottom"
+  ) +
+  # 💥 FUERZA DE FORMATO 1: Coma decimal y punto para miles
+  scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
+
+# 3. CONVIÉRTELO en interactivo
+p_plotly <- ggplotly(p)
+
+# 4. FUERZA DE FORMATO 2 (Refuerzo en Plotly)
+p_plotly <- p_plotly %>%
+  layout(yaxis = list(tickformat = ",.1f", 
+                      hoverformat = ",.3f" 
+                      ))
+
+p_plotly
+```
+###Mapa interactivo
+
+### MAPA INTERACTIVO DE SUICIDIO POR PROVINCIA
+```{r , eval = TRUE, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(mapSpain)
+library(stringr)
+library(scales)
+
+# 1. LECTURA Y LIMPIEZA INICIAL DE DATOS
+provincias_raw <- read_delim("INPUT/DATA/provincias_sexo.csv",
+                         delim = ";", trim_ws = TRUE,
+                         locale = locale(encoding = "ISO-8859-1"),
+                         show_col_types = FALSE)
+
+provincias_raw$Total <- as.numeric(gsub(",", ".", provincias_raw$Total))
+provincias_raw$Periodo <- as.numeric(provincias_raw$Periodo)
+
+
+# 2. AGREGACIÓN Y PREPARACIÓN DE CÓDIGOS
+datos_mapa <- provincias_raw %>%
+  filter(Sexo != "Total", Provincias != "Nacional") %>%
+  mutate(
+    # Extraemos los dos primeros dígitos del nombre de la provincia (código INE)
+    cod_join = str_sub(Provincias, 1, 2)
+  ) %>%
+  
+  # Agrupamos por el CÓDIGO
+  group_by(cod_join) %>%
+  summarise(
+    Tasa_Media = mean(Total, na.rm = TRUE),
+    # 💥 CORRECCIÓN CRÍTICA: Mantenemos el nombre original de la provincia 💥
+    Nombre_Provincia_Original = first(Provincias), 
+    .groups = 'drop'
+  )
+
+
+# 3. DESCARGAR GEOMETRÍA DEL MAPA Y UNIR DATOS POR CÓDIGO
+mapa_provincias <- esp_get_prov_siane(resolution = 10)
+
+# UNIÓN POR CÓDIGO INE (campo 'cpro' en el objeto de mapSpain)
+mapa_datos <- mapa_provincias %>%
+  mutate(cpro_join = as.character(cpro)) %>%
+  left_join(datos_mapa, by = c("cpro_join" = "cod_join"))
+
+
+# 4. CREAR EL GRÁFICO CHOROPLETH (Interactivo)
+p_mapa <- ggplot(mapa_datos) +
+  geom_sf(aes(fill = Tasa_Media, 
+              # 💥 USO DE LA COLUMNA GARANTIZADA: Nombre_Provincia_Original 💥
+              text = paste("Provincia:", str_remove(Nombre_Provincia_Original, "^\\d{1,2}\\s"), 
+                           "<br>Tasa Media (x 100k):", format(Tasa_Media, big.mark = ".", decimal.mark = ","))
+              )) +
+  # Escala de colores (más fuerte = más muertes)
+  scale_fill_gradient(
+    low = "#fef0d9",  
+    high = "#b30000", 
+    name = "Tasa Media (x 100k hab.)",
+    labels = label_number(big.mark = ".", decimal.mark = ",") 
+  ) +
+  labs(
+    title = "Tasa Media de Suicidio por Provincia (2021-2023)",
+    caption = "Fuente: INE."
+  ) +
+  theme_void() + 
+  theme(legend.position = "bottom")
+
+# Convertir a Plotly para la interactividad (tooltip y zoom)
+ggplotly(p_mapa, tooltip = "text")
 ```
 ### Suicidio por edad (JSON)
 ```{r , eval = TRUE,message=FALSE}
