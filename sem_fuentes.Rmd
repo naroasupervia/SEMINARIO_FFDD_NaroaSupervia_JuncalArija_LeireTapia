@@ -3,9 +3,18 @@ title: "Datos suicidio"
 author: "Juncal Arija, Naroa Supervia, Leire Tapia"
 date: "2025-11-06"
 output:
-  html_document: default
+  html_document:
+    theme: cerulean       # Otras opciones: united, cosmo, journal, readable
+    highlight: tango      # Colores de sintaxis: pygments, tango, zenburn...
+    toc: true             # Añade tabla de contenidos
+    toc_float: true       # TOC flotante que se desplaza al hacer scroll
+    number_sections: true # Numera capítulos y secciones
+    fig_width: 7
+    fig_height: 5
+    df_print: paged       # Tablas interactivas tipo DT
   pdf_document: default
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -125,6 +134,7 @@ head(suicidios_json)
 
 ```
 
+
 ## FILTRADO Y PREPARACIÓN DE LOS DATOS
 Los datos han sido filtrados y preparados para asegurar la coherencia entre las fuentes. Se eliminaron los totales generales en sexo para poder comparar hombres y mujeres. Se normalizó el nombre de las provincias para ....noseq
 y se separó el json en edad, sexo y valor para noseqqq
@@ -229,7 +239,7 @@ head(Suicidios_Edad)
 ```
 
 ## RESULTADOS 
-Aquí vienen los gráficos 
+Aquí vienen los gráficos
 
 ### Suicidio por sexo a nivel nacional
 Usando los datos del JSON, a partir de la tabla Suicidios_Edad (con las columnas sexo, edad y valor), agrupamos los datos que tengan el mismo valor en la columna sexo (hombres/mujeres) y para cada grupo hemos calculado la suma total de la columna valor. Como resultado obtenemos un nuevo tibble de 2 filas (una por sexo), con las columnas sexo y total.
@@ -284,7 +294,16 @@ En conclusión, los análisis del total de suicidios según el sexo muestra una 
 En España, el número total de suicidios es significativamente mayor en hombres que en mujeres, lo cual coincide con las estadísitcas nacionales e internacionales, donde los hombres presentan tasas de suicidio más elevadas a pesar de que las mujeres registran más intentos no letales.
 Este patrón puede estar asociado a factores socioculturales, diferencias en métodos utilizados, menor búsqueda de ayuda por parte de los hombres o barreras sociales relaccionadas con la salud mental.
 
-### Suicidio por provincia
+
+```{r , eval = TRUE,message=FALSE}
+#Tabla interactiva, buscar por año...
+datatable(provincias,
+          caption = 'Tabla 1: Tasas de suicidio por provincia y sexo',
+          options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE))
+```
+
+
+
 ### Suicidio por provincia
 ```{r , eval = TRUE,message=FALSE}
 library(readr)
@@ -616,6 +635,46 @@ ggplot(brecha_genero, aes(x = edad, y = Ratio_H_M)) +
 INTERPRETACIÓN
 
 Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos los grupos de edad (todos los ratios son superiores a 1). Sin embargo, observamos que la brecha no es constante, se dispara en el grupo de 85 a 89 años, donde hay casi 5 hombres por cada mujer.
+
+
+
+### Suicidios por sexo años(2021-2023)
+
+```{r , eval = TRUE,message=FALSE}
+library(tidyverse)
+
+# Convertimos la columna 'Total' a numérico.
+# En el CSV los valores vienen con coma decimal ("8,512"), y R necesita punto ("8.512").
+provincias$Total <- as.numeric(gsub(",", ".", provincias$Total))
+
+# Filtramos solo:
+#  - los tres años que queremos comparar (2021, 2022, 2023)
+#  - los datos correspondientes al total nacional
+df3 <- provincias %>%
+  filter(Periodo %in% c(2021, 2022, 2023),
+         Provincias == "Nacional")
+
+# Creamos una gráfica de líneas:
+#  - Eje X: año
+#  - Eje Y: tasa de suicidios por 100.000 habitantes
+#  - Color: diferencia entre hombres y mujeres
+#  - geom_point: puntos en cada año
+#  - geom_line: línea que une los puntos para cada sexo
+ggplot(df3, aes(x = Periodo, y = Total, color = Sexo, group = Sexo)) +
+  geom_point(size = 4) +                # Puntos grandes
+  geom_line(linewidth = 1.2) +          # Línea gruesa
+  theme_bw(base_size = 14) +            # Tema limpio y legible
+  labs(title = "España: suicidios por sexo (2021–2023)",
+       x = "Año",
+       y = "Tasa por 100.000 hab.")     # Etiquetas de los ejes
+
+
+```
+
+INTERPRETACION
+La gráfica muestra la evolución de la tasa de suicidios en España entre 2021 y 2023 diferenciando por sexo. Se aprecia claramente que los hombres presentan tasas muy superiores a las de las mujeres en los tres años analizados, con valores aproximadamente tres veces mayores. Además, las variaciones de un año a otro son pequeñas, lo que indica que la tendencia general se mantiene estable. En conjunto, la gráfica evidencia una brecha consistente entre hombres y mujeres, siendo los hombres el grupo con mayor riesgo durante todo el periodo.
+
+
 
 
 
