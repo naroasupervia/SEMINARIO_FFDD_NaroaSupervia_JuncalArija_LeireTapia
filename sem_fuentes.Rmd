@@ -3,7 +3,15 @@ title: "Datos suicidio"
 author: "Juncal Arija, Naroa Supervia, Leire Tapia"
 date: "2025-11-06"
 output:
-  html_document: default
+  html_document:
+    theme: cerulean       # Otras opciones: united, cosmo, journal, readable
+    highlight: tango      # Colores de sintaxis: pygments, tango, zenburn...
+    toc: true             # Añade tabla de contenidos
+    toc_float: true       # TOC flotante que se desplaza al hacer scroll
+    number_sections: true # Numera capítulos y secciones
+    fig_width: 7
+    fig_height: 5
+    df_print: paged       # Tablas interactivas tipo DT
   pdf_document: default
 ---
 
@@ -276,6 +284,12 @@ ggplot(nacional_sexo, aes(x = "", y = Total, fill = sexo)) +
         axis.ticks = element_blank()) +
   scale_fill_manual(values = c("Hombres" = "steelblue", "Mujeres" = "pink"))
 ```  
+
+```{r , eval = TRUE,message=FALSE}
+datatable(provincias,
+          caption = 'Tabla 1: Tasas de suicidio por provincia y sexo',
+          options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE))
+```
 
 INTERPRETACIÓN
 El gráfico de barras compara el total de suicidios entre hombres y mujeres, muestra que los hombreses presentan un mayor número de suicidios. El gráfico circular representa la misma información, pero en proporciones del total, muestra que los hombres representan aproximadamente el 75% de los suicidios a nivel nacional, mientras que las mujeres el 25%. 
