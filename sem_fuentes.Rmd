@@ -27,7 +27,6 @@ El suicidio es un fenómeno ocmplejo que constituye un importante problema de sa
 En este seminario, nos proponemos comparar el suicidio utilizando distintos conjuntos de datos (sexo, edad y territorio) para explorar las diferencias y analizar a que se deben.
 
 
-
 # **OBJETIVOS** 
 1. Describir la distribución del suicidio por sexo en España. 
 
@@ -39,7 +38,9 @@ En este seminario, nos proponemos comparar el suicidio utilizando distintos conj
 
 5. (Opcional) Explorar si existe relación entre grupos de edad + provincias + sexo. 
 
-
+```{r, echo=FALSE, fig.align='center', out.width="50%"}
+knitr::include_graphics("INPUT/DATA/imagen_fuentes.jpg")
+```
 
 # **PAQUETES UTILIZADOS**
 Para poder utilizar nuestros conjuntos de datos es necesario importar las siguientes librerias y paquetes:
@@ -366,7 +367,6 @@ INTERPRETACIÓN:
 Aquí tienes la interpretación condensada en un solo párrafo:
 
 El gráfico visualiza la tasa de suicidio por provincia y sexo en España durante el periodo 2021-2023, evidenciando una drástica y generalizada brecha de género en todo el territorio nacional. Los datos revelan que la mortalidad es sistemáticamente superior en los hombres (puntos rosas), cuyas tasas oscilan frecuentemente entre los 10 y más de 20 casos por cada 100.000 habitantes, mientras que las cifras en mujeres (puntos azules) se mantienen significativamente más bajas y estables, situándose casi siempre por debajo de 10. Este patrón estructural se repite en todas las provincias sin excepción, aunque se observa una incidencia masculina particularmente elevada en regiones del noroeste como Asturias, Lugo y Ourense, así como en zonas del interior como Zamora, donde la agrupación vertical de los puntos refleja las variaciones anuales ocurridas durante este trienio.
-###Mapa interactivo
 
 ### MAPA INTERACTIVO DE SUICIDIO POR PROVINCIA
 ```{r , eval = TRUE, message=FALSE, warning=FALSE}
