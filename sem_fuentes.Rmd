@@ -300,7 +300,6 @@ En España, el número total de suicidios es significativamente mayor en hombres
 Este patrón puede estar asociado a factores socioculturales, diferencias en métodos utilizados, menor búsqueda de ayuda por parte de los hombres o barreras sociales relaccionadas con la salud mental.
 
 ### Suicidio por provincia
-### Suicidio por provincia
 ```{r , eval = TRUE,message=FALSE}
 library(readr)
 library(dplyr)
