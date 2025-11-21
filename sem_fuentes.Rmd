@@ -20,11 +20,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # **INTRODUCCIÓN**
-contextualiza la idea del seminario, entrega una idea general de la temática, de lo que se sabe y sobre todo de lo que no se sabe y queréis abordar en vuestro trabajo.
+El **suicidio** es una de las principales causas de muerte no natural a nivel global y constituye un importante problema de salud pública en España.
 
-El suicidio es un fenómeno ocmplejo que constituye un importante problema de salud pública en España y en el mundo. Aunque se dispone de información general sobre la mortalidad por suicidio, la evidencia científica revela diferencias significativas según el sexo, la edad y el territorio.
-
-En este seminario, nos proponemos comparar el suicidio utilizando distintos conjuntos de datos (sexo, edad y territorio) para explorar las diferencias y analizar a que se deben.
+En este seminario, nos proponemos estudiar el suicidio utilizando distintos conjuntos de datos para explorar las diferencias entre el sexo la edad y el territorio, entre otras, y analizar a que se deben estas diferencias en España. 
 
 
 # **OBJETIVOS** 
@@ -34,9 +32,9 @@ En este seminario, nos proponemos comparar el suicidio utilizando distintos conj
 
 3. Estudiar la influencia del grupo de edad en la cantidad de suicidios. 
 
-4. Unificar los datos CSV y JSON para obtener una vista más completa. 
+4. Unificar los datos CSV y JSON para obtener una vista más completa y comparar la relación y fiabilidad de los datos.
 
-5. (Opcional) Explorar si existe relación entre grupos de edad + provincias + sexo. 
+5. Analizar la frecha de género 
 
 ```{r, echo=FALSE, fig.align='center', out.width="50%"}
 knitr::include_graphics("INPUT/DATA/imagen_fuentes.jpg")
@@ -264,7 +262,10 @@ ggplot(suicidio_sexo_nacional, aes(x = sexo, y = Total, fill = sexo)) +
   theme_minimal()
 ```
 
-Podemos representar los datos anteriores en otros tipos de gráfico, por ejemplo el gráfico circular.
+Podemos representar los datos anteriores en un gráfico circular para obtener otra visualización.
+
+
+#### estas 3 lineas decirlas pero quitarlas de aqui:
 Igual que en el anterior, agrupamos los datos que tengan el mismo valor en la columna sexo, y para cada grupo calculamos la suma total de la columna valor, obteniendo como resultado un nuevo tibble para llevar a cabo el gráfico circular.
 ```{r , eval = TRUE,message=FALSE}
 # 1. Filtrar datos a nivel nacional (ya que JSON tiene solo sexo y edad, sumamos por sexo)
@@ -292,11 +293,9 @@ datatable(provincias,
           options = list(pageLength = 10, autoWidth = TRUE, scrollX = TRUE))
 ```
 
-INTERPRETACIÓN
-El gráfico de barras compara el total de suicidios entre hombres y mujeres, muestra que los hombreses presentan un mayor número de suicidios. El gráfico circular representa la misma información, pero en proporciones del total, muestra que los hombres representan aproximadamente el 75% de los suicidios a nivel nacional, mientras que las mujeres el 25%. 
 
-En conclusión, los análisis del total de suicidios según el sexo muestra una diferencia clara entre hombres y mujeres.
-En España, el número total de suicidios es significativamente mayor en hombres que en mujeres, lo cual coincide con las estadísitcas nacionales e internacionales, donde los hombres presentan tasas de suicidio más elevadas a pesar de que las mujeres registran más intentos no letales.
+Los resultados de los gráficos muestra que los hombres presentan claramente un mayor número de suicidios. Podemos decir que los hombres representan aproximadamente el 75% de los suicidios a nivel nacional, mientras que las mujeres el 25%. 
+
 Este patrón puede estar asociado a factores socioculturales, diferencias en métodos utilizados, menor búsqueda de ayuda por parte de los hombres o barreras sociales relaccionadas con la salud mental.
 
 ### Suicidio por provincia
@@ -447,7 +446,7 @@ ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
 ### Union CSV + JSON 
 Como el CSV tiene los datos en referencia a 100.000 habitantes, vamos a hacer lo mismo con el JSON y así podremos compararlos.
 
-**1. Creacción de la tabla de referencia**
+**1. Creación de la tabla de referencia**
 En este paso,creamos una tabla de referencia de población, para ello usamos los datos oficiales totales de hombres y mujeres encontrados en INE.
 En esta nueva tabla la columna sexo será clave para unirla posteriormente con nuestros datos.
 
@@ -593,7 +592,7 @@ Como se puede observar, las barras verdes y las grises son prácticamente idént
 - La consistencia de los datos, confirmarmos que ambas fuentes de datos del INE son coherentes entre sí, asegurando que los análisis detallados que hemos realizado anteriormente son representativos y fiables.
 
 
-**6. Análisis brecha de género**
+**### Análisis brecha de género**
 
 Para finalizar, calculamos cuántos hombres se suicidan por cada mujer en cada grupo de edad. Este gráfico responde a la pregunta: "¿Por cada mujer que se suicida en este grupo de edad, cuántos hombres lo hacen?. Un valor de 1 significa igualdad, un valor de 3 significa que hay 3 veces más suicidios masculinos en dicho grupo.
 
