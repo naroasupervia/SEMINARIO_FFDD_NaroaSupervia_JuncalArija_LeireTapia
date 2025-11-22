@@ -1,40 +1,40 @@
 # SEMINARIO_FFDD_NaroaSupervia_JuncalArija_LeireTapia
 
-###Autores
+## Autores
 
-Juncal Arija
-Naroa Supervía
+Juncal Arija,
+Naroa Supervía,
 Leire Tapia
 
-###Objetivo General
+## Objetivo General
 
-El propósito de este trabajo es analizar la evolución reciente del suicidio en España utilizando datos oficiales del Instituto Nacional de Estadística (INE). A través de una integración de distintos formatos de datos (CSV y JSON), se estudian patrones por sexo, provincia y edad, con el fin de identificar tendencias relevantes y factores que puedan ayudar a comprender mejor el comportamiento estadístico del suicidio en los últimos años.
+El objetivo de este trabajo es estudiar cómo ha evolucionado el suicidio en España en los últimos años utilizando datos oficiales del INE. Para ello, combinamos información en distintos formatos (CSV y JSON) y analizamos patrones por sexo, provincia y edad. Nuestra intención es entender mejor qué tendencias aparecen en los datos y qué factores podrían estar influyendo en estas variaciones.
 
-###Descripción
+## Descripción
 
-El suicidio es uno de los principales problemas de salud pública tanto a nivel nacional como internacional. Su estudio es esencial para comprender cómo diferentes factores demográficos, geográficos y sociales pueden influir en su prevalencia.
+El suicidio es un problema de salud pública muy relevante, tanto en España como en el resto del mundo. Analizarlo es importante para entender cómo afectan ciertos factores sociales, geográficos o demográficos al riesgo de suicidio.
 
-En este seminario se utilizan dos fuentes principales del INE:
+En este seminario trabajamos con dos bases de datos del INE:
 
-- CSV con tasas de suicidio por 100.000 habitantes, desglosadas por provincia, sexo y año (2021–2023).
+- Un CSV con las tasas de suicidio por 100.000 habitantes según provincia, sexo y año (2021–2023).
 
-- JSON con el número de suicidios registrados por grupo de edad y sexo.
+- Un JSON con el número de suicidios por grupo de edad y sexo.
 
-El análisis incluye limpieza de datos, normalización, unificación de formatos y visualización mediante herramientas de R tales como ggplot2, plotly y mapSpain.
-Además, se calcula la brecha de género y se validan los datos comparando cifras nacionales entre ambas fuentes.
+A partir de estos datos realizamos un proceso de limpieza, transformación y unificación para poder analizarlos correctamente. También utilizamos diferentes herramientas de R, como ggplot2, plotly o mapSpain, para crear gráficos que nos ayuden a visualizar mejor los resultados.
+Además, calculamos la brecha de género y comprobamos si la información de ambas fuentes coincide cuando se compara a nivel nacional.
 
-###Objetivos del Seminario
+## Objetivos del Seminario
 
-- Unificar y procesar datos en formato CSV y JSON.
+- Integrar y preparar datos en formatos CSV y JSON.
 
-- Analizar la distribución del suicidio por sexo en España.
+- Analizar cómo varían las cifras de suicidio según el sexo.
 
-- Estudiar diferencias territoriales entre provincias según sus tasas.
+- Comparar las tasas entre diferentes provincias españolas.
 
-- Examinar la influencia de la edad en el número de suicidios.
+- Estudiar la relación entre la edad y el número de suicidios.
 
-- Representar los datos mediante gráficos estáticos e interactivos.
+- Crear gráficos claros, estáticos e interactivos, que ayuden a interpretar los resultados.
 
-- Identificar posibles patrones y tendencias demográficas o geográficas.
+- Detectar patrones o tendencias relacionados con la demografía o el territorio.
 
-- Contribuir al conocimiento sobre la magnitud real del suicidio y sus variaciones por grupo poblacional.
+- Aportar una visión más completa sobre la magnitud del suicidio en España y sus diferencias entre grupos poblacionales.
