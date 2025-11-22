@@ -20,9 +20,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # **INTRODUCCIÓN**
+
 El **suicidio** es una de las principales causas de muerte no natural a nivel global y constituye un importante problema de salud pública en España.
 
-En este seminario, nos proponemos estudiar el suicidio utilizando distintos conjuntos de datos para explorar las diferencias entre el sexo la edad y el territorio, entre otras, y analizar a que se deben estas diferencias en España. 
+En este seminario, nos proponemos estudiar como ha evolucionado el suicidio en España  en los ultimos años utilizando datos oficiales del INE para explorar las diferencias entre el sexo la edad y el territorio, entre otras, con la intención de entender mejor qué tendencias aparecen en los datos y que factores podrían estar influyendo en estas variaciones.
 
 
 # **OBJETIVOS** 
@@ -157,18 +158,6 @@ head(Suicidios_CSV_filtrado)
 ```
 
 
-### Normalizar nombres de provincias (quitar tildes, ñ o cosas q hagan q los nombres se vean mal)
-```{r , eval = TRUE,message=FALSE}
-# Crear el dataframe filtrado para el gráfico
-# (Usa el dataframe 'provincias' que ya cargaste y mutaste)
-Suicidios_CSV_filtrado <- provincias %>%
-  filter(Sexo != "Total", 
-         Provincias != "Nacional")
-
-# Ver el resultado (opcional)
-head(Suicidios_CSV_filtrado)
-```
-
 ### Eliminar "total" en sexo
 Para así comparar hombres vs mujeres 
 (entonces yo quitaría lo de cambiar el separador decimal xq si quitamos el total no nos hace falta camibar lo de . por , nose)
@@ -265,8 +254,6 @@ ggplot(suicidio_sexo_nacional, aes(x = sexo, y = Total, fill = sexo)) +
 Podemos representar los datos anteriores en un gráfico circular para obtener otra visualización.
 
 
-#### estas 3 lineas decirlas pero quitarlas de aqui:
-Igual que en el anterior, agrupamos los datos que tengan el mismo valor en la columna sexo, y para cada grupo calculamos la suma total de la columna valor, obteniendo como resultado un nuevo tibble para llevar a cabo el gráfico circular.
 ```{r , eval = TRUE,message=FALSE}
 # 1. Filtrar datos a nivel nacional (ya que JSON tiene solo sexo y edad, sumamos por sexo)
 nacional_sexo <- Suicidios_Edad %>%
