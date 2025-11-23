@@ -108,20 +108,12 @@ En resumen, el CSV ofrece tasas por provincia, sexo y año, mientras que el JSON
 ### **Importación de datos CSV**
 En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. 
 
-```{r , eval = TRUE,message=FALSE}
-
-# Para conocer el tipo de codificación: 
-encoding <- guess_encoding("INPUT/DATA/provincias_sexo.csv")
-print(encoding)
-
-```
 
 ```{r , eval = TRUE,message=FALSE}
 
 provincias <- read_delim("INPUT/DATA/provincias_sexo.csv", 
-                         delim = ";", trim_ws = TRUE, 
-                         locale = locale(encoding = "ISO-8859-1"),
-                         # FORZAMOS QUE TODO SE LEA COMO TEXTO AL PRINCIPIO
+                         delim = ";",
+                         trim_ws = TRUE, 
                          col_types = cols(.default = "c"))
 head(provincias)
 ```
@@ -130,15 +122,13 @@ head(provincias)
 
 ```{r , eval = TRUE,message=FALSE}
 
-# Ruta al archivo JSON
-ruta_json <- "INPUT/DATA/Suicidio_Edad-Sexo.json"
+#Ruta al archivo JSON
+suicidios_json <- jsonlite::fromJSON("INPUT/DATA/Suicidio_Edad-Sexo.json", flatten=TRUE)
 
-# Importar JSON y convertir a dataframe
-suicidios_json <- fromJSON(ruta_json)
-#suicidios_json <- as.data.frame(suicidios_json)
+suicidios_df <- as.data.frame(suicidios_json)
 
 # Mostrar las primeras filas
-head(suicidios_json)
+head(suicidios_df)
 
 ```
 
@@ -149,8 +139,7 @@ Los datos han sido filtrados y preparados para asegurar la coherencia entre las 
 ```{r , eval = TRUE,message=FALSE}
 provincias <- provincias %>%
   mutate(
-    # Ahora 'Total' es texto seguro (ej: "13,34").
-    # Cambiamos la coma por punto.
+    #Cambiamos total a numerico y la coma a punto
     Total = as.numeric(gsub(",", ".", Total)),
     # Aprovechamos para convertir 'Periodo' a número también
     Periodo = as.numeric(Periodo)
