@@ -14,6 +14,11 @@ output:
     df_print: paged       # Tablas interactivas tipo DT
   pdf_document: default
 ---
+<style type="text/css">
+  body {
+    background-color: #e3f2fd;
+  }
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -63,6 +68,10 @@ library(plotly)
 library(dplyr)
 library(mapSpain)
 library(knitr) # librería para tablas 
+library(stringr)
+library(scales)
+library(purrr)
+library(tidyr)
 ```
 
 
@@ -96,7 +105,7 @@ En resumen, el CSV ofrece tasas por provincia, sexo y año, mientras que el JSON
 
 ## IMPORTACIÓN DE LOS DATOS
 
-### **IMPORTACIÓN DATOS CSV**
+### **Importación de datos CSV**
 En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español??? :
 
 ```{r , eval = TRUE,message=FALSE}
@@ -116,7 +125,7 @@ provincias <- read_delim("INPUT/DATA/provincias_sexo.csv",
                          col_types = cols(.default = "c"))
 head(provincias)
 ```
-### IMPORTACIÓN DEL JSON
+### **Importación del JSON**
 
 
 ```{r , eval = TRUE,message=FALSE}
@@ -137,7 +146,7 @@ head(suicidios_json)
 Los datos han sido filtrados y preparados para asegurar la coherencia entre las fuentes. Se eliminaron los totales generales en sexo para poder comparar hombres y mujeres. Se normalizó el nombre de las provincias para ....noseq
 y se separó el json en edad, sexo y valor para noseqqq
 
-### Convertir la columna 'Total' del CSV de texto a número
+### **Convertir la columna 'Total' del CSV de texto a número**
 ```{r , eval = TRUE,message=FALSE}
 provincias <- provincias %>%
   mutate(
@@ -158,14 +167,11 @@ head(Suicidios_CSV_filtrado)
 ```
 
 
-### Eliminar "total" en sexo
+### **Eliminar "total" en sexo**
 Para así comparar hombres vs mujeres 
 (entonces yo quitaría lo de cambiar el separador decimal xq si quitamos el total no nos hace falta camibar lo de . por , nose)
 
 ```{r , eval = TRUE,message=FALSE}
-library(dplyr)
-library(purrr)
-library(tidyr)
 
 # ===============================
 # 1. Provincias: eliminar "Total" en Sexo
@@ -178,7 +184,7 @@ head(provincias_filtrado)
 ```
 
 
-### El JSON:separar edad y sexo
+### **El JSON:separar edad y sexo**
 Extraer:
 - Lista de edades
 - Lista de sexos
@@ -227,7 +233,7 @@ head(Suicidios_Edad)
 ## RESULTADOS 
 Aquí vienen los gráficos 
 
-### Suicidio por sexo a nivel nacional
+### **Suicidio por sexo a nivel nacional**
 Usando los datos del JSON, a partir de la tabla Suicidios_Edad (con las columnas sexo, edad y valor), agrupamos los datos que tengan el mismo valor en la columna sexo (hombres/mujeres) y para cada grupo hemos calculado la suma total de la columna valor. Como resultado obtenemos un nuevo tibble de 2 filas (una por sexo), con las columnas sexo y total.
 Con el nuevo tibble creamos un gráfico de barras.
 ```{r , eval = TRUE,message=FALSE}
@@ -285,14 +291,8 @@ Los resultados de los gráficos muestra que los hombres presentan claramente un 
 
 Este patrón puede estar asociado a factores socioculturales, diferencias en métodos utilizados, menor búsqueda de ayuda por parte de los hombres o barreras sociales relaccionadas con la salud mental.
 
-### Suicidio por provincia
+### **Suicidio por provincia**
 ```{r , eval = TRUE,message=FALSE}
-library(readr)
-library(dplyr)
-library(ggplot2)
-library(plotly)
-library(scales) 
-library(stringr) 
 
 # Evitar notación científica en la visualización
 options(scipen = 999) 
@@ -328,12 +328,17 @@ p <- ggplot(Suicidios_CSV_filtrado_FINAL, aes(x = Sexo, y = Total, color = Sexo)
     x = "Sexo",
     y = "Tasa Total (x 100.000 hab.)"
   ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 0), 
-    strip.text = element_text(size = 7),
-    legend.position = "bottom"
-  ) +
+theme_minimal() +
+theme(
+  # ESTO ES LO NUEVO: Quitamos el texto del eje X porque ya tenemos colores
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank(),
+  
+  # Mantenemos el resto de tu configuración
+  strip.text = element_text(size = 7), # Tamaño de nombres de provincias
+  legend.position = "bottom",          # Leyenda abajo
+  panel.grid.major.x = element_blank() # (Opcional) Quita líneas verticales para limpiar más
+) +
   # Formato de ejes con coma decimal
   scale_y_continuous(labels = label_number(big.mark = ".", decimal.mark = ","))
 
@@ -349,19 +354,16 @@ p_plotly <- p_plotly %>%
 p_plotly
 ```
 INTERPRETACIÓN: 
-Aquí tienes la interpretación condensada en un solo párrafo:
+El gráfico muestra la tasa de suicidios por cada 100.000 habitantes en todas las provincias españolas entre 2021 y 2023, y además separa los datos por sexo (hombres en rojo y mujeres en azul), lo que permite ver tanto las diferencias entre provincias como la brecha entre hombres y mujeres.
 
-El gráfico visualiza la tasa de suicidio por provincia y sexo en España durante el periodo 2021-2023, evidenciando una drástica y generalizada brecha de género en todo el territorio nacional. Los datos revelan que la mortalidad es sistemáticamente superior en los hombres (puntos rosas), cuyas tasas oscilan frecuentemente entre los 10 y más de 20 casos por cada 100.000 habitantes, mientras que las cifras en mujeres (puntos azules) se mantienen significativamente más bajas y estables, situándose casi siempre por debajo de 10. Este patrón estructural se repite en todas las provincias sin excepción, aunque se observa una incidencia masculina particularmente elevada en regiones del noroeste como Asturias, Lugo y Ourense, así como en zonas del interior como Zamora, donde la agrupación vertical de los puntos refleja las variaciones anuales ocurridas durante este trienio.
+Al observar el gráfico podemos ver que existe una diferencia muy grande entre hombres y mujeres,y que las tasas cambian mucho según la provincia, sobre todo en los hombres.
 
-### MAPA INTERACTIVO DE SUICIDIO POR PROVINCIA
+En cuanto a la diferencia entre sexos, las mujeres tienen tasas bastante bajas y estables, normalmente entre 5 y 7 casos por cada 100.000 habitantes, mientras que los hombres, presentan valores mucho más altos y con más variación, llegando incluso a triplicar o cuadruplicar las cifras femeninas en la mayoría de los territorios.
+
+También se ven diferencias claras entre provincias, especialmente entre los hombres. Las tasas masculinas más altas aparecen normalmente en provincias como Asturias, Lugo, Ourense o Zamora que superan o se acercan a los 20 casos por cada 100.000 habitantes, y en otras provincias, como Madrid, Guadalajara o Valladolid, las tasas son más bajas (alrededor de 10-12), aunque la diferencia respecto a las mujeres sigue existiendo.
+
+### **Mapa interactivo de suicidio por provincia**
 ```{r , eval = TRUE, message=FALSE, warning=FALSE}
-library(readr)
-library(dplyr)
-library(ggplot2)
-library(plotly)
-library(mapSpain)
-library(stringr)
-library(scales)
 
 # 1. Lectura y limpieza inicial de datos
 provincias_raw <- read_delim("INPUT/DATA/provincias_sexo.csv",
@@ -389,7 +391,6 @@ datos_mapa <- provincias_raw %>%
 # 3. Descargar geometría y unir datos
 mapa_provincias <- esp_get_prov_siane(resolution = 10)
 
-# Unimos usando 'cpro' (código INE en mapSpain) y nuestro 'cod_join'
 mapa_datos <- mapa_provincias %>%
   mutate(cpro_join = as.character(cpro)) %>%
   left_join(datos_mapa, by = c("cpro_join" = "cod_join"))
@@ -417,20 +418,52 @@ p_mapa <- ggplot(mapa_datos) +
 ggplotly(p_mapa, tooltip = "text")
 ```
 INTERPRETACIÓN:
-Este mapa de calor ilustra la distribución geográfica de la tasa media de suicidio en España entre 2021 y 2023, revelando una clara concentración territorial del fenómeno en el noroeste peninsular. La provincia de Lugo se destaca visualmente como el foco de mayor incidencia, marcada con el tono rojo más intenso que sugiere una tasa cercana o superior a los 14 casos por cada 100.000 habitantes, seguida por el resto de Galicia y Asturias, así como ciertas zonas de Andalucía oriental y el interior norte (como Zamora). En contraposición, se observa una notable "zona valle" en el centro del país, donde provincias como Madrid y Guadalajara presentan los tonos más claros de la escala, indicando las tasas medias más bajas del periodo (situadas en el rango de 4 a 6), lo que evidencia una fuerte disparidad regional entre la periferia noroeste y el centro de la península.
+Este mapa muestra cómo se distribuyen las tasas medias de suicidio por cada 100.000 habitantes en España entre 2021 y 2023, haciendo media con hombres y mujeres. Los colores ayudan a identificar rápidamente las zonas con más o menos incidencia, ya que los tonos claros representan tasas bajas y los tonos rojos más intensos indican tasas altas.
 
-### Suicidio por edad (JSON)
+Al analizar el mapa, podemos ver que las tasas más altas se concentran sobre todo en el noroeste, en zonas de Galicia, Zamora y León, especialmente Lugo aparece con el tono más oscuro, lo que indica que están muy por encima de la media nacional, con valores que rondan o superan los 12-14 casos por cada 100.000 habitantes, siendo esta la provincia con mayor tasa de suicidios.
+
+Por el contrario, en zonas del centro como Madrid, tienen tasas bastante más bajas, alrededor de 4 a 8 casos.
+
+### **Suicidio por edad (JSON)**
 ```{r , eval = TRUE,message=FALSE}
-# Gráfico 4.4.3: Suicidio por edad (CORREGIDO)
-# La corrección está en aes(fill = sexo) -> (todo en minúscula)
+# 1. Definimos el orden correcto cronológicamente
+orden_correcto <- c(
+  "Menores de 15 años",
+  "De 15 a 29 años",
+  "De 30 a 39 años",
+  "De 40 a 44 años",
+  "De 45 a 49 años",
+  "De 50 a 54 años",
+  "De 55 a 59 años",
+  "De 60 a 64 años",
+  "De 65 a 69 años",
+  "De 70 a 74 años",
+  "De 75 a 79 años",
+  "De 80 a 84 años",
+  "De 85 a 89 años",
+  "De 90 a 94 años",
+  "De 95 años y más"
+)
 
-ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) + 
+Suicidios_Edad$edad <- factor(Suicidios_Edad$edad, levels = orden_correcto)
+
+ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
   geom_bar(stat = "identity", position = "dodge") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  labs(x = "Grupo de Edad", y = "Número de Suicidios")
 ```
 
+INTERPRETACIÓN:
+Este gráfico de barras muestra cuántos suicidios hubo en total según los diferentes grupos de edad, separando también por sexo (hombres en rojo y mujeres en azul). A diferencia de los mapas o las tasas por provincias, aquí no hablamos de proporciones, sino de números absolutos. Eso permite ver claramente en qué etapas de la vida se concentran más casos.
 
-### Union CSV + JSON 
+A partir del gráfico se pueden destacar dos ideas principales, la brecha entre hombres y mujeres aparece en todas las edades, y los suicidios se concentran sobre todo en la mediana edad.
+
+Las edades comprendidas entre los 40 y los 59 años son las que acumulan más casos tanto en hombres como en mujeres. En especial, los grupos de 50-54 y 55-59 años son los que muestran los valores más altos.
+
+En cambio, las cifras descienden bastante en los grupos de mayor edad de 90 a +95 años y son muy bajas entre los menores de 15.
+
+### **Union CSV + JSON**
 Como el CSV tiene los datos en referencia a 100.000 habitantes, vamos a hacer lo mismo con el JSON y así podremos compararlos.
 
 **1. Creación de la tabla de referencia**
@@ -615,15 +648,19 @@ Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos
 
 
 # CONCLUSIONES
-Tras el análisis comparativo de las tasas de suicidio en España utilizando datos oficiales del INE, podemos extraer las siguientes conclsiones princiaples:
-- una linea por grafico
-.............
+En conclusión, después de analizar los datos desde distintos puntos de vista, se ve claramente que el suicidio en España no afecta igual a todo el mundo. Por un lado, hay una diferencia muy marcada entre hombres y mujeres, ya que los hombres siempre presentan cifras más altas, tanto en tasas por 100.000 habitantes como en números absolutos. 
+Por otro lado, tampoco todas las provincias se comportan igualen zonas del noroeste es donde aparecen las tasas más elevadas, mientras que en el centro y el sur los valores son bastante más bajos en comparación.
 
+Si miramos por edad, los casos se concentran sobre todo en la mediana edad, especialmente entre los 40 y los 59 años. En cambio, en los grupos más jóvenes y más mayores los valores bajan bastante.
 
+Además, los datos del CSV y del JSON encajan bien entre sí, lo que da más confianza en los resultados del análisis. Gracias a esto, podemos entender mejor un problema tan complejo y ver que influyen muchos factores como el lugar donde se vive, la edad y el sexo.
 
-Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados: hombres y....
+Con todo lo que hemos visto, podríamos decir que el grupo con mayor riesgo en base a este estudio serían los hombres de Lugo que están en la mediana edad.
+
 
 # REFERENCIAS 
+https://datos.gob.es/es/
+https://ine.es/
 
 
 
