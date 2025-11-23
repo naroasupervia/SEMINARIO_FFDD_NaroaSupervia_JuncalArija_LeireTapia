@@ -648,14 +648,14 @@ Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos
 
 
 # CONCLUSIONES
-En conclusión, después de analizar los datos desde distintos puntos de vista, se ve claramente que el suicidio en España no afecta igual a todo el mundo. Por un lado, hay una diferencia muy marcada entre hombres y mujeres, ya que los hombres siempre presentan cifras más altas, tanto en tasas por 100.000 habitantes como en números absolutos. 
+Tras el análisis comparativo de las tasas de suicidio en España utilizando datos oficiales del INE, podemos extraer las siguientes conclsiones princiaples: Se ve claramente que el suicidio en España no afecta igual a todo el mundo. Por un lado, hay una diferencia muy marcada entre hombres y mujeres, ya que los hombres siempre presentan cifras más altas, tanto en tasas por 100.000 habitantes como en números absolutos. 
 Por otro lado, tampoco todas las provincias se comportan igualen zonas del noroeste es donde aparecen las tasas más elevadas, mientras que en el centro y el sur los valores son bastante más bajos en comparación.
 
 Si miramos por edad, los casos se concentran sobre todo en la mediana edad, especialmente entre los 40 y los 59 años. En cambio, en los grupos más jóvenes y más mayores los valores bajan bastante.
 
 Además, los datos del CSV y del JSON encajan bien entre sí, lo que da más confianza en los resultados del análisis. Gracias a esto, podemos entender mejor un problema tan complejo y ver que influyen muchos factores como el lugar donde se vive, la edad y el sexo.
 
-Con todo lo que hemos visto, podríamos decir que el grupo con mayor riesgo en base a este estudio serían los hombres de Lugo que están en la mediana edad.
+Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados:Que en base a este estudio serían los hombres de Lugo que están en la mediana edad.
 
 
 # REFERENCIAS 
