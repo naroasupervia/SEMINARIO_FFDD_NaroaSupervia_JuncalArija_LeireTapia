@@ -77,7 +77,7 @@ library(tidyr)
 
 
 # **DESARROLLO Y RESULTADOS**
-Una vez cargadas las librerias importamos los datos
+Una vez cargadas las librerias importamos los datos.
 
 ## OBTENCIÓN DE LOS DATOS 
 Para este trabajo se han utilizado dos conjuntos de datos procedentes del Instituto Nacional de Estadísitca (INE), a través de sus estadísticas oficiales sobre defunciones según causa de muerte. Ambas fuentes se han descargado directamente desde la herramienta de consulta del INE y contienen información actualizada y validada por el organismo. 
@@ -90,7 +90,7 @@ Este archivo le hemos utilizado para:
   - Las diferencias entre sexos 
   - Las variaciones territoriales entre provincias.
 
-- **suicidio_Edad-Sexo.json**: Este JSON  contiene el número absoluto de suicidios registrados a nivel nacional en el año 2022 (creemos). Está desglosado por grupo de edad y por sexo. 
+- **suicidio_Edad-Sexo.json**: Este JSON  contiene el número absoluto de suicidios registrados a nivel nacional en el año 2022. Está desglosado por grupo de edad y por sexo. 
 La estructura del Json incluye:
   - Un campo MetaData, donde se especifíca el sexo y el grupo de edad.
   - Un campo Data, donde aparece el valor numérico de suicidios en ese grupo.
@@ -106,7 +106,7 @@ En resumen, el CSV ofrece tasas por provincia, sexo y año, mientras que el JSON
 ## IMPORTACIÓN DE LOS DATOS
 
 ### **Importación de datos CSV**
-En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español??? :
+En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. 
 
 ```{r , eval = TRUE,message=FALSE}
 
@@ -143,8 +143,7 @@ head(suicidios_json)
 ```
 
 ## FILTRADO Y PREPARACIÓN DE LOS DATOS
-Los datos han sido filtrados y preparados para asegurar la coherencia entre las fuentes. Se eliminaron los totales generales en sexo para poder comparar hombres y mujeres. Se normalizó el nombre de las provincias para ....noseq
-y se separó el json en edad, sexo y valor para noseqqq
+Los datos han sido filtrados y preparados para asegurar la coherencia entre las fuentes. 
 
 ### **Convertir la columna 'Total' del CSV de texto a número**
 ```{r , eval = TRUE,message=FALSE}
@@ -169,13 +168,9 @@ head(Suicidios_CSV_filtrado)
 
 ### **Eliminar "total" en sexo**
 Para así comparar hombres vs mujeres 
-(entonces yo quitaría lo de cambiar el separador decimal xq si quitamos el total no nos hace falta camibar lo de . por , nose)
 
 ```{r , eval = TRUE,message=FALSE}
 
-# ===============================
-# 1. Provincias: eliminar "Total" en Sexo
-# ===============================
 provincias_filtrado <- provincias %>%
   filter(Sexo != "Total")
 
@@ -231,7 +226,7 @@ head(Suicidios_Edad)
 ```
 
 ## RESULTADOS 
-Aquí vienen los gráficos 
+Estudio de los datos y gráficos 
 
 ### **Suicidio por sexo a nivel nacional**
 Usando los datos del JSON, a partir de la tabla Suicidios_Edad (con las columnas sexo, edad y valor), agrupamos los datos que tengan el mismo valor en la columna sexo (hombres/mujeres) y para cada grupo hemos calculado la suma total de la columna valor. Como resultado obtenemos un nuevo tibble de 2 filas (una por sexo), con las columnas sexo y total.
@@ -353,10 +348,10 @@ p_plotly <- p_plotly %>%
 
 p_plotly
 ```
-INTERPRETACIÓN: 
+
 El gráfico muestra la tasa de suicidios por cada 100.000 habitantes en todas las provincias españolas entre 2021 y 2023, y además separa los datos por sexo (hombres en rojo y mujeres en azul), lo que permite ver tanto las diferencias entre provincias como la brecha entre hombres y mujeres.
 
-Al observar el gráfico podemos ver que existe una diferencia muy grande entre hombres y mujeres,y que las tasas cambian mucho según la provincia, sobre todo en los hombres.
+Al observar el gráfico podemos ver que existe una diferencia muy grande entre hombres y mujeres, y que las tasas cambian mucho según la provincia, sobre todo en los hombres.
 
 En cuanto a la diferencia entre sexos, las mujeres tienen tasas bastante bajas y estables, normalmente entre 5 y 7 casos por cada 100.000 habitantes, mientras que los hombres, presentan valores mucho más altos y con más variación, llegando incluso a triplicar o cuadruplicar las cifras femeninas en la mayoría de los territorios.
 
@@ -417,7 +412,7 @@ p_mapa <- ggplot(mapa_datos) +
 # Convertir a Plotly para interactividad
 ggplotly(p_mapa, tooltip = "text")
 ```
-INTERPRETACIÓN:
+
 Este mapa muestra cómo se distribuyen las tasas medias de suicidio por cada 100.000 habitantes en España entre 2021 y 2023, haciendo media con hombres y mujeres. Los colores ayudan a identificar rápidamente las zonas con más o menos incidencia, ya que los tonos claros representan tasas bajas y los tonos rojos más intensos indican tasas altas.
 
 Al analizar el mapa, podemos ver que las tasas más altas se concentran sobre todo en el noroeste, en zonas de Galicia, Zamora y León, especialmente Lugo aparece con el tono más oscuro, lo que indica que están muy por encima de la media nacional, con valores que rondan o superan los 12-14 casos por cada 100.000 habitantes, siendo esta la provincia con mayor tasa de suicidios.
@@ -454,7 +449,6 @@ ggplot(Suicidios_Edad, aes(x = edad, y = Valor, fill = sexo)) +
   labs(x = "Grupo de Edad", y = "Número de Suicidios")
 ```
 
-INTERPRETACIÓN:
 Este gráfico de barras muestra cuántos suicidios hubo en total según los diferentes grupos de edad, separando también por sexo (hombres en rojo y mujeres en azul). A diferencia de los mapas o las tasas por provincias, aquí no hablamos de proporciones, sino de números absolutos. Eso permite ver claramente en qué etapas de la vida se concentran más casos.
 
 A partir del gráfico se pueden destacar dos ideas principales, la brecha entre hombres y mujeres aparece en todas las edades, y los suicidios se concentran sobre todo en la mediana edad.
@@ -467,6 +461,7 @@ En cambio, las cifras descienden bastante en los grupos de mayor edad de 90 a +9
 Como el CSV tiene los datos en referencia a 100.000 habitantes, vamos a hacer lo mismo con el JSON y así podremos compararlos.
 
 **1. Creación de la tabla de referencia**
+
 En este paso,creamos una tabla de referencia de población, para ello usamos los datos oficiales totales de hombres y mujeres encontrados en INE.
 En esta nueva tabla la columna sexo será clave para unirla posteriormente con nuestros datos.
 
@@ -537,7 +532,7 @@ validacion_json <- Suicidios_Con_Tasas %>%
   group_by(sexo) %>%
   summarise(Tasa_Calculada_JSON = sum(Tasa_Aportacion))
 
-# 2. Sacamos la tasa del CSV (¡Ahora ya está limpia!)
+# 2. Sacamos la tasa del CSV 
 validacion_csv <- provincias %>% 
   filter(Provincias == "Nacional", Periodo == 2022, Sexo != "Total") %>%
   select(Sexo, Tasa_Oficial_CSV = Total)
@@ -546,14 +541,6 @@ validacion_csv <- provincias %>%
 comparativa_fuentes <- left_join(validacion_json, validacion_csv, by = c("sexo" = "Sexo"))
 
 print(comparativa_fuentes)
-
-
-# 4. Para poner la tabla bonita 
-#library(knitr)
-#kable(comparativa_fuentes, 
-     # col.names = c("Sexo", "Tasa JSON (Calculada)", "Tasa CSV (Oficial)"),
-     # digits = 2, 
-     # caption = "Validación de tasas (2022)")
 
 ```
 
@@ -571,7 +558,7 @@ datos_json <- comparativa_fuentes %>%
     Tasa = as.numeric(Tasa) # Aseguramos que sea número
   )
 
-# B) Datos del CSV (Oficiales) 
+# B) Datos del CSV 
 datos_csv <- comparativa_fuentes %>%
   select(sexo, Tasa = Tasa_Oficial_CSV) %>%
   mutate(
@@ -601,8 +588,6 @@ ggplot(datos_grafico, aes(x = sexo, y = Tasa, fill = Fuente)) +
   theme(legend.position = "top")
 ``` 
 
-INTERPRETACIÓN Y VALIZACIÓN DE RESULTADOS
-
 El gráfico de barras agrupadas compara las tasas de suicidio por sexo obtenidas de dos formas distintas:
 - Dato oficial (CSV): La tasa publicada directamente por el INE
 - Cálculo propio (JSON): La tasa que hemos calculado nosotros mismos sumando los suicidios absolutos por edad del JSON y dividiéndolos por la población oficial de España.
@@ -611,8 +596,7 @@ Como se puede observar, las barras verdes y las grises son prácticamente idént
 - La validación metodológica, nuestro procedimiento para unir las bases de datos y calcular las tasas por edad ha sido correcto. 
 - La consistencia de los datos, confirmarmos que ambas fuentes de datos del INE son coherentes entre sí, asegurando que los análisis detallados que hemos realizado anteriormente son representativos y fiables.
 
-
-**### Análisis brecha de género**
+### **Análisis brecha de género**
 
 Para finalizar, calculamos cuántos hombres se suicidan por cada mujer en cada grupo de edad. Este gráfico responde a la pregunta: "¿Por cada mujer que se suicida en este grupo de edad, cuántos hombres lo hacen?. Un valor de 1 significa igualdad, un valor de 3 significa que hay 3 veces más suicidios masculinos en dicho grupo.
 
@@ -624,7 +608,7 @@ brecha_genero <- Suicidios_Con_Tasas %>%
   # Calculamos el Ratio (Cuántos hombres por cada mujer)
   mutate(Ratio_H_M = Hombres / Mujeres)
 
-# 2. Gráfico de Piruleta (Lollipop Chart) para visualizar la diferencia
+# 2. Gráfico de Piruleta para visualizar la diferencia
 ggplot(brecha_genero, aes(x = edad, y = Ratio_H_M)) +
   # Línea vertical desde 0 hasta el punto
   geom_segment(aes(x = edad, xend = edad, y = 0, yend = Ratio_H_M), color = "grey") +
@@ -641,25 +625,25 @@ ggplot(brecha_genero, aes(x = edad, y = Ratio_H_M)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-INTERPRETACIÓN
 
 Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos los grupos de edad (todos los ratios son superiores a 1). Sin embargo, observamos que la brecha no es constante, se dispara en el grupo de 85 a 89 años, donde hay casi 5 hombres por cada mujer.
 
 
 
 # CONCLUSIONES
-Tras el análisis comparativo de las tasas de suicidio en España utilizando datos oficiales del INE, podemos extraer las siguientes conclsiones princiaples: Se ve claramente que el suicidio en España no afecta igual a todo el mundo. Por un lado, hay una diferencia muy marcada entre hombres y mujeres, ya que los hombres siempre presentan cifras más altas, tanto en tasas por 100.000 habitantes como en números absolutos. 
-Por otro lado, tampoco todas las provincias se comportan igualen zonas del noroeste es donde aparecen las tasas más elevadas, mientras que en el centro y el sur los valores son bastante más bajos en comparación.
+Tras el análisis comparativo de las tasas de suicidio en España utilizando datos oficiales del INE, podemos extraer las siguientes conclsiones principales: Se ve claramente que el suicidio en España no afecta igual a todo el mundo. Por un lado, hay una diferencia muy marcada entre hombres y mujeres, ya que los hombres siempre presentan cifras más altas, tanto en tasas por 100.000 habitantes como en números absolutos. 
+Por otro lado, tampoco todas las provincias se comportan igual, en zonas del noroeste es donde aparecen las tasas más elevadas, mientras que en el centro y el sur los valores son bastante más bajos en comparación.
 
 Si miramos por edad, los casos se concentran sobre todo en la mediana edad, especialmente entre los 40 y los 59 años. En cambio, en los grupos más jóvenes y más mayores los valores bajan bastante.
 
 Además, los datos del CSV y del JSON encajan bien entre sí, lo que da más confianza en los resultados del análisis. Gracias a esto, podemos entender mejor un problema tan complejo y ver que influyen muchos factores como el lugar donde se vive, la edad y el sexo.
 
-Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados:Que en base a este estudio serían los hombres de Lugo que están en la mediana edad.
+Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados. Que en base a este estudio serían los hombres de Lugo que están en la mediana edad.
 
 
 # REFERENCIAS 
 https://datos.gob.es/es/
+
 https://ine.es/
 
 
