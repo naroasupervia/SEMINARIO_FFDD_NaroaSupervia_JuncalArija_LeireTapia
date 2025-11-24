@@ -1,7 +1,7 @@
 ---
 title: "Datos suicidio"
 author: "Juncal Arija, Naroa Supervia, Leire Tapia"
-date: "2025-11-06"
+date: "2025-11-24"
 output:
   html_document:
     theme: cerulean       # Otras opciones: united, cosmo, journal, readable
@@ -578,7 +578,7 @@ brecha_genero <- Suicidios_Con_Tasas %>%
   # Calculamos el Ratio (Cuántos hombres por cada mujer)
   mutate(Ratio_H_M = Hombres / Mujeres)
 
-# 2. Gráfico de Piruleta para visualizar la diferencia
+# 2. Gráfico para visualizar la diferencia
 ggplot(brecha_genero, aes(x = edad, y = Ratio_H_M)) +
   # Línea vertical desde 0 hasta el punto
   geom_segment(aes(x = edad, xend = edad, y = 0, yend = Ratio_H_M), color = "grey") +
@@ -600,7 +600,7 @@ Este análisis revela que el suicidio es un fenómeno muy masculinizado en todos
 
 
 
-# CONCLUSIONES
+# **CONCLUSIONES**
 Tras el análisis comparativo de las tasas de suicidio en España utilizando datos oficiales del INE, podemos extraer las siguientes conclsiones principales: Se ve claramente que el suicidio en España no afecta igual a todo el mundo. Por un lado, hay una diferencia muy marcada entre hombres y mujeres, ya que los hombres siempre presentan cifras más altas, tanto en tasas por 100.000 habitantes como en números absolutos. 
 Por otro lado, tampoco todas las provincias se comportan igual, en zonas del noroeste es donde aparecen las tasas más elevadas, mientras que en el centro y el sur los valores son bastante más bajos en comparación.
 
@@ -611,7 +611,7 @@ Además, los datos del CSV y del JSON encajan bien entre sí, lo que da más con
 Este análisis de datos destaca la necesidad de estrategías de prevención dirigidas específicamente a los grupos de mayor riesgo identificados. Que en base a este estudio serían los hombres de Lugo que están en la mediana edad.
 
 
-# REFERENCIAS 
+# **REFERENCIAS**
 https://datos.gob.es/es/
 
 https://ine.es/
